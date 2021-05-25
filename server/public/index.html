@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+    <title>led-sync</title>
+</head>
+
+<body style="margin: 0px;">
+    <div id="bkrd" style="position: absolute; width: 100%; height: 100%; padding: 10px;">
+        <h3 id="message"></h3>
+    </div>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            var bkrd = document.querySelectorAll("#bkrd")[0];
+            var message = document.querySelectorAll("#message")[0];
+
+            var connected = true;
+
+            var updateMessage = () => {
+                if (connected) {
+                    message.innerHTML = "Connected :)"
+                } else {
+                    message.innerHTML = "Disconnected :("
+                }
+            };
+
+            var connect = () => {
+                var ws = new WebSocket("ws://localhost:1337/");
+
+                ws.onopen = () => {
+                    console.log("Connection is opened...");
+                    connected = true;
+                    updateMessage();
+                };
+
+                ws.onmessage = (evt) => {
+                    var received_msg = JSON.parse(evt.data);
+                    // console.log("Message is received...", received_msg);
+                    bkrd.style.backgroundColor = "rgb(" + received_msg.join(',') + ")";
+                };
+
+                ws.onclose = () => {
+                    connected = false;
+                    updateMessage();
+                    console.log("Connection is closed...trying again in 3 seconds.");
+                    setTimeout(() => {
+                        connect();
+                    }, 3000);
+                };
+            };
+            connect();
+        });
+    </script>
+</body>
+
+</html>
