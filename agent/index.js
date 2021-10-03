@@ -60,13 +60,14 @@ const run = async () => {
                     });
 
                     ws.on('message', (data) => {
-                        const parsedData = JSON.parse(data);
-			            if(lastMessage !== data){
+			data = data.replace(/(\[|\])/g, '').split(',');
+			console.log('new message', data);
+			if(lastMessage !== data){
                             lastMessage = data;
-                            console.log('message = ' + parsedData);
+                            console.log('message = ' + data);
                         }
-
-                        setSolidColor(parsedData[0], parsedData[1], parsedData[2]);
+			
+                        setSolidColor(data[0], data[1], data[2]);
                     });
 
                     ws.on('close', () => {
