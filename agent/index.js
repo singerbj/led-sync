@@ -36,6 +36,7 @@ const setSolidColor = (r, g, b) => {
 };
 
 let currentServer;
+let lastMessage;
 
 const run = async () => {
 
@@ -60,7 +61,10 @@ const run = async () => {
 
                     ws.on('message', function incoming(data) {
                         const parsedData = JSON.parse(data);
-                        console.log('message = ' + parsedData);
+                        if(lastMessage !== parsedData){
+                            lastMessage = parsedData;
+                            console.log('message = ' + parsedData);
+                        }
 
                         setSolidColor(parsedData[0], parsedData[1], parsedData[2]);
                         // TODO: set led color

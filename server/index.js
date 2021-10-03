@@ -95,6 +95,7 @@ const run = async () => {
             vCap.release();
             vCap = undefined;
         }
+        console.log(forcedColor);
         sendColor(forcedColor);
         waitAndRun(startTime, run);
     } else {
