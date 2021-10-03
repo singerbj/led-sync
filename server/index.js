@@ -6,21 +6,27 @@ const { getAverageColor } = require('fast-average-color-node');
 const express = require('express');
 var bodyParser = require('body-parser')
 const app = express();
-app.use(express.static('public'));
+app.use(express.static('build'));
 app.use(bodyParser.json());
 const httpPort = 3000;
 const wsPort = 1337;
 
-let forcedColor;
+let forcedColor = [100, 100, 100];
 
-app.put('/', (req, res) => {
+app.get('/color', (req, res) => {
+    res.send(forcedColor);
+});
+
+app.put('/color', (req, res) => {
     const { body } = req;
 
-    if(body && body.color && body.color.length === 3 && !isNaN(body.color[0]) && !isNaN(body.color[1]) && !isNaN(body.color[2])){
-        forcedColor = body.color;
+    if(body && body.length === 3 && !isNaN(body[0]) && !isNaN(body[1]) && !isNaN(body[2])){
+        forcedColor = body;
     } else {
         forcedColor = undefined;
     }
+
+    console.log("forcedColor: ", forcedColor === undefined ? "undefined": forcedColor);
 
     res.send(body);
 });
@@ -53,15 +59,18 @@ wss.on('connection', (ws) => {
 });
 
 let vCap;
-try {
-    vCap = new cv.VideoCapture(1);
-    console.log("Using video capture 1");
-} catch (e) {
-    vCap = new cv.VideoCapture(0);
-    console.log("Using video capture 2");
-}
-vCap.set(cv.CAP_PROP_FRAME_WIDTH, 480);
-vCap.set(cv.CAP_PROP_FRAME_HEIGHT, 270);
+
+const setupVCap = () => {
+    try {
+        vCap = new cv.VideoCapture(1);
+        console.log("Using video capture 1");
+    } catch (e) {
+        vCap = new cv.VideoCapture(0);
+        console.log("Using video capture 2");
+    }
+    vCap.set(cv.CAP_PROP_FRAME_WIDTH, 480);
+    vCap.set(cv.CAP_PROP_FRAME_HEIGHT, 270);
+};
 
 const waitAndRun = (startTime, func) => {
     const timeSinceStart = Date.now() - startTime;
@@ -82,9 +91,17 @@ const run = async () => {
     const startTime = Date.now();
 
     if(forcedColor){
+        if(vCap){
+            vCap.release();
+            vCap = undefined;
+        }
         sendColor(forcedColor);
         waitAndRun(startTime, run);
     } else {
+        if(!vCap){
+            setupVCap();
+        }
+
         let frame = vCap.read();
         // loop back to start on end of stream reached
         if (frame.empty) {
