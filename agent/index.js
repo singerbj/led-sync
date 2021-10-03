@@ -59,15 +59,13 @@ const run = async () => {
                         resolve(device);
                     });
 
-                    ws.on('message', (data) => {
-			data = data.replace(/(\[|\])/g, '').split(',');
-			console.log('new message', data);
-			if(lastMessage !== data){
-                            lastMessage = data;
-                            console.log('message = ' + data);
+                    ws.on('message', (incomingMessage) => {
+                        const formatedColorData = incomingMessage.replace(/(\[|\])/g, '').split(',');
+			            if(lastMessage !== incomingMessage){
+                            lastMessage = incomingMessage;
+                            console.log('message = ' + formatedColorData);
                         }
-			
-                        setSolidColor(data[0], data[1], data[2]);
+                        setSolidColor(formatedColorData[0], formatedColorData[1], formatedColorData[2]);
                     });
 
                     ws.on('close', () => {

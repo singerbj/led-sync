@@ -80,11 +80,16 @@ const waitAndRun = (startTime, func) => {
     }, waitTime);
 };
 
+let lastSend = 0;
 const sendColor = (color) => {
-    Object.keys(wsMap).forEach((key) => {
-        const ws = wsMap[key];
-        ws.send(JSON.stringify(color));
-    });
+    const now = Date.now();
+    if((now - lastSend) > 500){
+        lastSend = now;
+        Object.keys(wsMap).forEach((key) => {
+            const ws = wsMap[key];
+            ws.send(JSON.stringify(color));
+        });
+    }
 };
 
 let lastForcedColor;
