@@ -60,13 +60,13 @@ const run = async () => {
                     });
 
                     ws.on('message', (data) => {
-                        console.log(data, JSON.parse(data));
                         const parsedData = JSON.parse(data);
 			            if(lastMessage !== data){
                             lastMessage = data;
                             console.log('message = ' + parsedData);
-                            setSolidColor(parsedData[0], parsedData[1], parsedData[2]);
                         }
+
+                        setSolidColor(parsedData[0], parsedData[1], parsedData[2]);
                     });
 
                     ws.on('close', () => {
