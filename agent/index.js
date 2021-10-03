@@ -53,30 +53,29 @@ const run = async () => {
                         handshakeTimeout: HANDSHAKE_TIMEOUT
                     });
 
-                    ws.on('open', function open() {
+                    ws.on('open', () => {
                         console.log('open');
                         currentServer = ws;
                         resolve(device);
                     });
 
-                    ws.on('message', function incoming(data) {
+                    ws.on('message', (data) => {
+                        console.log(data, JSON.parse(data));
                         const parsedData = JSON.parse(data);
-			if(lastMessage !== data){
+			            if(lastMessage !== data){
                             lastMessage = data;
                             console.log('message = ' + parsedData);
+                            setSolidColor(parsedData[0], parsedData[1], parsedData[2]);
                         }
-
-                        setSolidColor(parsedData[0], parsedData[1], parsedData[2]);
-                        // TODO: set led color
                     });
 
-                    ws.on('close', function incoming() {
+                    ws.on('close', () => {
                         console.log('close');
                         currentServer = undefined;
                         reject();
                     });
 
-                    ws.on('error', function incoming(error) {
+                    ws.on('error', (error) => {
                         console.log('error');
                         currentServer = undefined;
                         reject(error);

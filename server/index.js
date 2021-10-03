@@ -87,6 +87,7 @@ const sendColor = (color) => {
     });
 };
 
+let lastForcedColor;
 const run = async () => {
     const startTime = Date.now();
 
@@ -95,7 +96,10 @@ const run = async () => {
             vCap.release();
             vCap = undefined;
         }
-        console.log(forcedColor);
+        if(lastForcedColor !== forcedColor) {
+            lastForcedColor = forcedColor;
+            console.log('sending forcedColor', forcedColor);
+        }
         sendColor(forcedColor);
         waitAndRun(startTime, run);
     } else {
