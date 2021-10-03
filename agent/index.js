@@ -61,8 +61,8 @@ const run = async () => {
 
                     ws.on('message', function incoming(data) {
                         const parsedData = JSON.parse(data);
-                        if(lastMessage !== parsedData){
-                            lastMessage = parsedData;
+			if(lastMessage !== data){
+                            lastMessage = data;
                             console.log('message = ' + parsedData);
                         }
 
