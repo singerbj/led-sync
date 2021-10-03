@@ -20,7 +20,7 @@ const componentToHex = (c) => {
 };
 
 const rgbToHex = (r, g, b) => {
-    return "0x" + (componentToHex(r) + componentToHex(g) + componentToHex(b)).toString(16);
+    return "0x" + (componentToHex(g) + componentToHex(r) + componentToHex(b)).toString(16);
 };
 
 const setSolidColor = (r, g, b) => {
