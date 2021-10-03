@@ -23,11 +23,11 @@ const rgbToHex = (r, g, b) => {
     return "0x" + (componentToHex(r) + componentToHex(g) + componentToHex(b)).toString(16);
 };
 
-const setSolidColor = (color) => {
+const setSolidColor = (r, g, b) => {
     const pixels = new Uint32Array(config.leds);
-    const hexColor = rgbToHex(color);
+    const hexColor = rgbToHex(r, g, b);
 
-    for(const i = 0; i < config.leds; i += 1){
+    for(let i = 0; i < config.leds; i += 1){
         pixels[i] = hexColor;
     }
 
