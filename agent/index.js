@@ -27,7 +27,7 @@ const setSolidColor = (r, g, b) => {
     const pixels = new Uint32Array(config.leds);
     const hexColor = rgbToHex(r, g, b);
 
-    for(let i = 0; i < config.leds; i += 1){
+    for(let i = 0; i < 300; i += 1){
         pixels[i] = hexColor;
     }
 
