@@ -83,7 +83,7 @@ const waitAndRun = (startTime, func) => {
 let lastSend = 0;
 const sendColor = (color) => {
     const now = Date.now();
-    if((now - lastSend) > 500){
+    if((now - lastSend) > 100){
         lastSend = now;
         Object.keys(wsMap).forEach((key) => {
             const ws = wsMap[key];
