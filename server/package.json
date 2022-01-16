@@ -9,6 +9,7 @@
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "fast-average-color-node": "^1.0.3",
+    "local-devices": "^3.2.0",
     "npm-run-all": "^4.1.5",
     "opencv4nodejs": "^5.6.0",
     "react": "^17.0.2",
@@ -26,7 +27,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy": "ssh pi@192.168.181.236 '/bin/bash -i -c \"source ~/.profile && cd led-sync/server && git pull && yarn restart\"'",
-    "restart": "forever stop \"led-sync-server\"; yarn && forever start -a --uid \"led-sync-server\" index.js;"
+    "restart": "forever stop \"led-sync-server\"; yarn && yarn build && forever start -a --uid \"led-sync-server\" index.js;"
   },
   "proxy": "http://localhost:3000",
   "eslintConfig": {

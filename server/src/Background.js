@@ -1,6 +1,8 @@
 import './App.css';
 import { useEffect, useState } from 'react';
 
+const WEBSOCKET_PORT = 1336;
+
 const Background = ({ children }) => {
     const [connected, setConnected] = useState(false);
     const [colorState, setColorState] = useState([0, 0, 0]);
@@ -8,7 +10,7 @@ const Background = ({ children }) => {
     useEffect(() => {
         var ws;
         var connect = () => {
-            ws = new WebSocket("ws://localhost:1337/");
+            ws = new WebSocket(`ws://localhost:${WEBSOCKET_PORT}/`);
 
             ws.onopen = () => {
                 console.log("Connection is opened...");

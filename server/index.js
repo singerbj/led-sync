@@ -2,14 +2,33 @@
 const cv = require('opencv4nodejs');
 const WebSocket = require('ws');
 const { getAverageColor } = require('fast-average-color-node');
+const find = require('local-devices');
+var dgram = require('dgram');
 
 const express = require('express');
 var bodyParser = require('body-parser')
 const app = express();
 app.use(express.static('build'));
 app.use(bodyParser.json());
-const httpPort = 3000;
-const wsPort = 1337;
+const HTTP_PORT = 3000;
+const WS_PORT = 1336;
+const UDP_PORT = 1337;
+const PACKET_SEND_INTERVAL = 100; // was 100ms
+const DEVICE_SEARCH_INTERVAL = 30000;
+let devices = [];
+
+//find devices every 30 seconds
+const getDevices = () => {
+    find().then(foundDevices => {
+        console.log(foundDevices);
+        devices = foundDevices
+    });
+};
+setInterval(() => {
+    getDevices();
+}, DEVICE_SEARCH_INTERVAL);
+getDevices();
+  
 
 let forcedColor = [100, 100, 100];
 
@@ -31,14 +50,13 @@ app.put('/color', (req, res) => {
     res.send(body);
 });
 
-app.listen(httpPort, () => {
-    console.log(`Http listening at http://localhost:${httpPort}`)
+app.listen(HTTP_PORT, () => {
+    console.log(`Http listening at http://localhost:${HTTP_PORT}`)
 });
-
 
 // set up websocketserver
 const wsMap = {};
-const wss = new WebSocket.Server({ port: wsPort });
+const wss = new WebSocket.Server({ port: WS_PORT });
 
 wss.getUniqueID = function () {
     const s4 = () => {
@@ -58,8 +76,13 @@ wss.on('connection', (ws) => {
     });
 });
 
-let vCap;
 
+var client = dgram.createSocket('udp4');
+client.on('error', (error) => {
+    console.error(error);
+});
+
+let vCap;
 const setupVCap = () => {
     try {
         vCap = new cv.VideoCapture(1);
@@ -80,14 +103,38 @@ const waitAndRun = (startTime, func) => {
     }, waitTime);
 };
 
+const sendColorToDevice = (color, device) => {
+    return new Promise((resolve) => {
+        client.send(color.join(','), 0, 12, UDP_PORT, device.ip, function(err, bytes) {
+            if(err){
+                console.error('err', err);
+            } else {
+                console.log(`sent ${color.join(',')} to ${device.ip}`)
+            }
+            resolve();
+        });
+    });
+};
+
+const sendColorToWebsocket = (stringifiedColor, ws, key) => {
+    return new Promise((resolve) => {
+        ws.send(stringifiedColor);
+        console.log(`sent ${stringifiedColor} to ${key}`)
+        resolve();
+    });
+};
+
 let lastSend = 0;
 const sendColor = (color) => {
     const now = Date.now();
-    if((now - lastSend) > 100){
+    if((now - lastSend) > PACKET_SEND_INTERVAL){
         lastSend = now;
+        const stringifiedColor = JSON.stringify(color);
         Object.keys(wsMap).forEach((key) => {
-            const ws = wsMap[key];
-            ws.send(JSON.stringify(color));
+            sendColorToWebsocket(stringifiedColor, wsMap[key], key)
+        });
+        devices.forEach((device) => {
+            sendColorToDevice(color, device)
         });
     }
 };
