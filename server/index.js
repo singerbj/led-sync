@@ -103,16 +103,20 @@ const waitAndRun = (startTime, func) => {
     }, waitTime);
 };
 
-const sendColorToDevice = (color, device) => {
+const sendColorToUdpDevice = (color, device) => {
     return new Promise((resolve) => {
-        client.send(color.join(','), 0, 12, UDP_PORT, device.ip, function(err, bytes) {
-            if(err){
-                console.error('err', err);
-            } else {
-                console.log(`sent ${color.join(',')} to ${device.ip}`)
-            }
+        if(device.name.indexOf("esp32") > -1){
+            client.send(color.join(',') + ",", 0, 12, UDP_PORT, device.ip, function(err, bytes) {
+                if(err){
+                    console.error('err', err);
+                } else {
+                    console.log(`sent ${color.join(',') + ","} to ${device.ip}`)
+                }
+                resolve();
+            });
+        } else {
             resolve();
-        });
+        }
     });
 };
 
@@ -134,7 +138,7 @@ const sendColor = (color) => {
             sendColorToWebsocket(stringifiedColor, wsMap[key], key)
         });
         devices.forEach((device) => {
-            sendColorToDevice(color, device)
+            sendColorToUdpDevice(color, device)
         });
     }
 };
