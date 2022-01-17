@@ -18,11 +18,9 @@ const DEVICE_SEARCH_INTERVAL = 30000;
 let devices = [];
 
 //find devices every 30 seconds
-const getDevices = () => {
-    find().then(foundDevices => {
-        console.log(foundDevices);
-        devices = foundDevices
-    });
+const getDevices = async () => {
+    devices = await find();
+    console.log(devices);
 };
 setInterval(() => {
     getDevices();
