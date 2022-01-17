@@ -150,32 +150,40 @@ const run = async () => {
     const startTime = Date.now();
 
     if(forcedColor){
-        if(vCap){
-            vCap.release();
-            vCap = undefined;
+        try{
+            if(vCap){
+                vCap.release();
+                vCap = undefined;
+            }
+            
+            console.log('sending forcedColor', forcedColor);
+            sendColor(forcedColor);
+        } catch (e) {
+            console.error(e);
         }
-        
-        console.log('sending forcedColor', forcedColor);
-        sendColor(forcedColor);
         waitAndRun(startTime, run);
     } else {
-        if(!vCap){
-            setupVCap();
+        try {
+            if(!vCap){
+                setupVCap();
+            }
+
+            let frame = vCap.read();
+            // loop back to start on end of stream reached
+            if (frame.empty) {
+                vCap.reset();
+                frame = vCap.read();
+            }
+
+            // get dominant color of image
+            const dominantColor = await getAverageColor(cv.imencode('.jpg', frame));
+            // console.log(dominantColor.value);
+
+            // send dominant color
+            sendColor(dominantColor.value);
+        } catch (e) {
+            console.error(e);
         }
-
-        let frame = vCap.read();
-        // loop back to start on end of stream reached
-        if (frame.empty) {
-            vCap.reset();
-            frame = vCap.read();
-        }
-
-        // get dominant color of image
-        const dominantColor = await getAverageColor(cv.imencode('.jpg', frame));
-        // console.log(dominantColor.value);
-
-        // send dominant color
-        sendColor(dominantColor.value);
 
         waitAndRun(startTime, run);
     }
