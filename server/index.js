@@ -6,7 +6,8 @@ const find = require('local-devices');
 var dgram = require('dgram');
 
 const express = require('express');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
+const { existsSync } = require('fs');
 const app = express();
 app.use(express.static('build'));
 app.use(bodyParser.json());
@@ -72,6 +73,10 @@ wss.on('connection', (ws) => {
         console.log('close');
         delete wsMap[ws.id];
     });
+});
+
+wss.on('error', (err) => {
+    console.error(err);
 });
 
 
