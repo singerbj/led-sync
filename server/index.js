@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 const HTTP_PORT = 3000;
 const WS_PORT = 1336;
 const UDP_PORT = 1337;
-const PACKET_SEND_INTERVAL = 100; // was 100ms
+const PACKET_SEND_INTERVAL = 0; // was 100ms
 const DEVICE_SEARCH_INTERVAL = 30000;
 let devices = [];
 
