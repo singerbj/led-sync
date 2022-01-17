@@ -10,7 +10,7 @@ const Background = ({ children }) => {
     useEffect(() => {
         var ws;
         var connect = () => {
-            ws = new WebSocket(`ws://localhost:${WEBSOCKET_PORT}/`);
+            ws = new WebSocket(`ws://${window.location.hostname}:${WEBSOCKET_PORT}/`);
 
             ws.onopen = () => {
                 console.log("Connection is opened...");
