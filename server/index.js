@@ -7,7 +7,6 @@ var dgram = require('dgram');
 
 const express = require('express');
 var bodyParser = require('body-parser');
-const { existsSync } = require('fs');
 const app = express();
 app.use(express.static('build'));
 app.use(bodyParser.json());
@@ -99,8 +98,8 @@ const setupVCap = () => {
 };
 
 const waitAndRun = (startTime, func) => {
-    const timeSinceStart = Date.now() - startTime;
-    const waitTime = 0 - timeSinceStart < 0 ? 0 : 0 - timeSinceStart;
+    // const timeSinceStart = Date.now() - startTime;
+    const waitTime = 0; // = 0 - timeSinceStart < 0 ? 0 : 0 - timeSinceStart;
     setTimeout(() => {
         func();
     }, waitTime);
@@ -176,7 +175,7 @@ const run = async () => {
             }
 
             // get dominant color of image
-            const dominantColor = await getAverageColor(cv.imencode('.jpg', frame));
+            const dominantColor = await getAverageColor(cv.imencode('.jpg', frame), { mode: "speed" });
             // console.log(dominantColor.value);
 
             // send dominant color
