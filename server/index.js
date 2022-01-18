@@ -108,7 +108,7 @@ const waitAndRun = (startTime, func) => {
 const sendColorToUdpDevice = (color, device) => {
     return new Promise((resolve) => {
         if(device.name.indexOf("esp32") > -1){
-            client.send(color.join(',') + ",", 0, 12, UDP_PORT, device.ip, function(err, bytes) {
+            client.send(color.join(',') + ",", 0, 50, UDP_PORT, device.ip, function(err, bytes) {
                 if(err){
                     console.error('err', err);
                 } else {
