@@ -113,7 +113,7 @@ const sendColorToUdpDevice = (color, device) => {
                 if(err){
                     console.error('err', err);
                 } else {
-                    console.log(`sent ${color.join(',') + ","} to ${device.ip}`)
+                    // console.log(`sent ${color.join(',') + ","} to ${device.ip}`)
                 }
                 resolve();
             });
@@ -126,7 +126,7 @@ const sendColorToUdpDevice = (color, device) => {
 const sendColorToWebsocket = (stringifiedColor, ws, key) => {
     return new Promise((resolve) => {
         ws.send(stringifiedColor);
-        console.log(`sent ${stringifiedColor} to ${key}`)
+        // console.log(`sent ${stringifiedColor} to ${key}`)
         resolve();
     });
 };
@@ -156,7 +156,7 @@ const run = async () => {
                 vCap = undefined;
             }
             
-            console.log('sending forcedColor', forcedColor);
+            // console.log('sending forcedColor', forcedColor);
             sendColor(forcedColor);
         } catch (e) {
             console.error(e);
