@@ -1,39 +1,48 @@
 import './App.css';
+import { io } from "socket.io-client";
 import { useEffect, useState } from 'react';
 
-const WEBSOCKET_PORT = 1336;
+// const WEBSOCKET_PORT = 1336;
 
 const Background = ({ children }) => {
     const [connected, setConnected] = useState(false);
     const [colorState, setColorState] = useState([0, 0, 0]);
 
     useEffect(() => {
-        var ws;
+        let socket;
         var connect = () => {
-            ws = new WebSocket(`ws://${window.location.hostname}:${WEBSOCKET_PORT}/`);
+            socket = io();
 
-            ws.onopen = () => {
+            // client-side
+            socket.on("connect", () => {
                 console.log("Connection is opened...");
                 setConnected(true);
-            };
-
-            ws.onmessage = (evt) => {
-                var received_msg = JSON.parse(evt.data);
+            });
+            socket.on("forced_color", (message) => {
+                var received_msg = JSON.parse(message);
                 setColorState(received_msg);
-            };
-
-            ws.onclose = () => {
+            });
+            
+            socket.on("disconnect", () => {
                 setConnected(false);
                 console.log("Connection is closed...trying again in 3 seconds.");
                 setTimeout(() => {
                     connect();
                 }, 3000);
-            };
+            });
+
+            socket.on("connect_error", () => {
+                setConnected(false);
+                console.log("Connection error...trying again in 3 seconds.");
+                setTimeout(() => {
+                    connect();
+                }, 3000);
+            });
         };
         connect();
 
         return () => {
-            ws.close();
+            socket.disconnect();
         };
     }, [])
 
