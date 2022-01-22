@@ -1,54 +1,26 @@
 #!/usr/bin/env python
 
-import asyncio
-import concurrent.futures
-import websockets
+import cv2
 import socket
 from flask import Flask, request, jsonify, json, send_from_directory
 from flask_socketio import SocketIO
 import threading
 import time
-import sys
-
-
+import numpy as np
 
 HTTP_PORT = 3000
 WS_PORT = 1336
 UDP_PORT = 1337
 DIRECTORY = "build"
-
 HOSTNAME = socket.gethostname()
 LOCAL_IP = socket.gethostbyname(HOSTNAME)
 
 WS_CONNECTIONS = set()
 
-
-
+send_capture = False
+vid = None
 forced_color = [100, 100, 100]
-
-
-
-# # Websockets
-# async def ws_connection_management(websocket):
-#     global WS_CONNECTIONS, VALUE
-#     try:
-#         # Register user
-#         WS_CONNECTIONS.add(websocket)
-#     finally:
-#         # Unregister user
-#         WS_CONNECTIONS.remove(websocket)
-#         # websockets.broadcast(WS_CONNECTIONS, users_event())
-
-# def broadcast_color(websockets):
-#     while(True):
-#         websockets.broadcast(WS_CONNECTIONS, json.dumps(forcedColor))
-
-# async def init_websockets():
-#     async with websockets.serve(ws_connection_management, LOCAL_IP, WS_PORT):
-#         print('WSS startd at ws://' + str(LOCAL_IP) + ':' + str(WS_PORT))
-#         threading.Thread(target=lambda: broadcast_color(websockets)).start()
-#     await asyncio.Future()  # run forever
-
+capture_color = [0, 0, 0]
 
 # HTTP
 api = Flask(__name__, static_url_path='', static_folder='build',)
@@ -63,12 +35,21 @@ def index(filename):
 @api.route('/color', methods=['GET', 'PUT'])
 def get_color():
     global forced_color
+    global capture_color
+    global send_capture
+
     if request.method == 'GET':
         return json.dumps(forced_color)
-    else:
-        forced_color = request.json
-        return jsonify(forced_color)
+    elif request.method == 'PUT':
+        if request.json == False:
+            send_capture = True
+            return json.dumps(forced_color)
+        else:
+            send_capture = False
+            forced_color = request.json
+            return json.dumps(forced_color)
 
+# Websockets
 @socketio.on('connect')
 def handle_connect():
     print('connect')
@@ -77,14 +58,54 @@ def handle_connect():
 def handle_disconnect():
     print('disconnect')
 
+
+def start_capture():
+    print('starting capturing')
+
+    global vid
+    try:
+        vid = cv2.VideoCapture(0)
+    except:
+        try:
+            vid = cv2.VideoCapture(1)
+        except:
+            print("Error getting video capture.")
+
+def stop_capture():
+    print('stopping capturing')
+
+    try:
+        global vid
+        vid.release()
+        vid = None
+    except:
+        print("Error closing video capture.")
+
+
 if __name__ == '__main__':
-    # sys.stdout.flush()
-
-    # socketio.run(api, host=str(LOCAL_IP), port=HTTP_PORT)
     threading.Thread(target=lambda: socketio.run(api, host=str(LOCAL_IP), port=HTTP_PORT)).start()
-
     while(True):
-        print('sending')
-        socketio.emit('forced_color', json.dumps(forced_color))
-        time.sleep(0.25)
+        if send_capture == False:
+            if vid != None:
+                stop_capture()
+
+            cv2.destroyAllWindows()
+            socketio.emit('forced_color', json.dumps(forced_color))
+            time.sleep(0.25)
+        else:
+            if vid == None:
+                start_capture()
+
+            ret, frame = vid.read()
+
+            data = np.reshape(frame, (-1, 3))
+            data = np.float32(data)
+
+            criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+            flags = cv2.KMEANS_RANDOM_CENTERS
+            compactness, labels, centers = cv2.kmeans(data, 1, None, criteria, 10, flags)
+
+            color_array = [int(centers[0].astype(np.int32)[2]), int(centers[0].astype(np.int32)[1]), int(centers[0].astype(np.int32)[0])]
+            socketio.emit('forced_color', json.dumps(color_array))
+
 

@@ -50,7 +50,7 @@ const App = () => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: undefined
+      body: false
     });
     return response.json();
   }
