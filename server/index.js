@@ -17,4 +17,3 @@ var cleanExit = function() {
 process.on('SIGINT', cleanExit); // catch ctrl-c
 process.on('SIGTERM', cleanExit);
 process.on('SIGQUIT', cleanExit);
-process.on('SIGKILL', cleanExit);
