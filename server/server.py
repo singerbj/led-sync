@@ -68,9 +68,11 @@ def start_capture():
     global vid
     try:
         vid = cv2.VideoCapture(0)
+        print("Capturing with device 0")
     except:
         try:
             vid = cv2.VideoCapture(1)
+            print("Capturing with device 1")
         except:
             print("Error getting video capture.")
 
