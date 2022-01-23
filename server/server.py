@@ -14,8 +14,8 @@ HTTP_PORT = 3000
 WS_PORT = 1336
 UDP_PORT = 1337
 DIRECTORY = "build"
-HOSTNAME = socket.getfqdn()
-LOCAL_IP = socket.gethostbyname(HOSTNAME)
+HOSTNAME = socket.gethostname()
+LOCAL_IP = socket.gethostbyname(HOSTNAME + ".local")
 
 WS_CONNECTIONS = set()
 
