@@ -7,6 +7,8 @@ from flask_socketio import SocketIO
 import threading
 import time
 import numpy as np
+import os
+
 
 HTTP_PORT = 3000
 WS_PORT = 1336
@@ -21,6 +23,7 @@ send_capture = False
 vid = None
 forced_color = [100, 100, 100]
 capture_color = [0, 0, 0]
+devices = []
 
 # HTTP
 api = Flask(__name__, static_url_path='', static_folder='build',)
@@ -81,8 +84,22 @@ def stop_capture():
     except:
         print("Error closing video capture.")
 
+def get_devices():
+    print("getting devices...")
+    global devices
+    temp_devices = []
+    for device in os.popen("arp -a | grep 'esp' | awk '{print $2}' | sed 's/^.//;s/.$//'"):
+        formatted_device = device = device[:-1] 
+        temp_devices.append(formatted_device)
+    devices = temp_devices
+
+    print(devices)
+    time.sleep(10)
+    get_devices()
+
 
 if __name__ == '__main__':
+    threading.Thread(target=lambda: get_devices()).start()
     threading.Thread(target=lambda: socketio.run(api, host=str(LOCAL_IP), port=HTTP_PORT)).start()
     while(True):
         if send_capture == False:
@@ -91,6 +108,11 @@ if __name__ == '__main__':
 
             cv2.destroyAllWindows()
             socketio.emit('forced_color', json.dumps(forced_color))
+            for device in devices:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                message = str(forced_color[0]) + "," + str(forced_color[1]) + "," + str(forced_color[2]) + ","
+                print("sending message: " + message)
+                sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
             time.sleep(0.25)
         else:
             if vid == None:
@@ -107,5 +129,11 @@ if __name__ == '__main__':
 
             color_array = [int(centers[0].astype(np.int32)[2]), int(centers[0].astype(np.int32)[1]), int(centers[0].astype(np.int32)[0])]
             socketio.emit('forced_color', json.dumps(color_array))
+            for device in devices:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                message = str(color_array[0]) + "," + str(color_array[1]) + "," + str(color_array[2]) + ","
+                print("sending message: " + message)
+                sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
+            
 
 
