@@ -83,18 +83,17 @@ def stop_capture():
         print("Error closing video capture.")
 
 def get_devices():
-    print("getting devices...")
-    global devices
-    temp_devices = []
-    for device in os.popen("arp -a | grep 'esp' | awk '{print $2}' | sed 's/^.//;s/.$//'"):
-        formatted_device = device = device[:-1] 
-        temp_devices.append(formatted_device)
-    devices = temp_devices
+    while True:
+        print("getting devices...")
+        global devices
+        temp_devices = []
+        for device in os.popen("arp -a | grep 'esp' | awk '{print $2}' | sed 's/^.//;s/.$//'"):
+            formatted_device = device = device[:-1] 
+            temp_devices.append(formatted_device)
+        devices = temp_devices
 
-    print(devices)
-    time.sleep(10)
-    get_devices()
-
+        print(devices)
+        time.sleep(15)
 
 def process():
     global forced_color
