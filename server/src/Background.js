@@ -9,26 +9,43 @@ const Background = ({ children }) => {
     const [colorState, setColorState] = useState([0, 0, 0]);
 
     useEffect(() => {
-        let socket;
-        var connect = () => {
-            socket = io(window.location.origin, { transports: ["websocket"] });
+        // let socket;
+        // var connect = () => {
+        //     socket = io(window.location.origin, { transports: ["websocket"] });
 
-            // client-side
-            socket.on("connect", () => {
-                console.log("Connection is opened...");
-                setConnected(true);
-            });
-            socket.on("forced_color", (message) => {
-                var received_msg = JSON.parse(message);
-                setColorState(received_msg);
-            });
+        //     // client-side
+        //     socket.on("connect", () => {
+        //         console.log("Connection is opened...");
+        //         setConnected(true);
+        //     });
+        //     socket.on("forced_color", (message) => {
+        //         var received_msg = JSON.parse(message);
+        //         setColorState(received_msg);
+        //     });
             
-            socket.on("disconnect", () => {
+        //     socket.on("disconnect", () => {
+        //         setConnected(false);
+        //         console.log("Connection is closed...");
+        //     });
+        // };
+        // connect();
+        
+        const getColor = (async() => {
+            try {
+                const response = await fetch('/color')
+                const json = await response.json();
+                setColorState(json)
+                setConnected(true);
+                getColor();
+            } catch (e) {
                 setConnected(false);
-                console.log("Connection is closed...");
-            });
-        };
-        connect();
+                setTimeout(() => {
+                    getColor();
+                }, 3000)
+            }
+        });
+        getColor();
+        setConnected(true);
     }, [])
 
     return (

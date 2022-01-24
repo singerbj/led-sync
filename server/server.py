@@ -45,7 +45,6 @@ def get_color():
     global send_capture
 
     if request.method == 'GET':
-        print("Getting forced_color")
         return json.dumps(forced_color)
     elif request.method == 'PUT':
         if request.json == False:
@@ -53,9 +52,9 @@ def get_color():
             print("Setting capture on")
             return json.dumps(forced_color)
         else:
-            print("Setting forced_color")
             send_capture = False
             forced_color = request.json
+            print("Setting forced_color: " + str(forced_color))
             return json.dumps(forced_color)
 
 # Websockets
