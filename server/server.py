@@ -110,6 +110,7 @@ def process():
             start_capture()
 
         ret, frame = vid.read()
+        frame = cv2.resize(frame, (960, 540))
 
         data = np.reshape(frame, (-1, 3))
         data = np.float32(data)
