@@ -112,33 +112,35 @@ def process():
         else:
             if vid == None:
                 start_capture()
+            try:
+                ret, frame = vid.read()
+                # frame = cv2.resize(frame, (960, 540))
 
-            ret, frame = vid.read()
-            # frame = cv2.resize(frame, (960, 540))
+                data = np.reshape(frame, (-1, 3))
+                data = np.float32(data)
 
-            data = np.reshape(frame, (-1, 3))
-            data = np.float32(data)
+                criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+                flags = cv2.KMEANS_RANDOM_CENTERS
+                compactness, labels, centers = cv2.kmeans(data, 1, None, criteria, 10, flags)
 
-            criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-            flags = cv2.KMEANS_RANDOM_CENTERS
-            compactness, labels, centers = cv2.kmeans(data, 1, None, criteria, 10, flags)
+                color_array = [int(centers[0].astype(np.int32)[2]), int(centers[0].astype(np.int32)[1]), int(centers[0].astype(np.int32)[0])]
+                forced_color = color_array
+                for device in devices:
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    message = str(color_array[0]) + "," + str(color_array[1]) + "," + str(color_array[2]) + ","
+                    sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
 
-            color_array = [int(centers[0].astype(np.int32)[2]), int(centers[0].astype(np.int32)[1]), int(centers[0].astype(np.int32)[0])]
-            forced_color = color_array
-            for device in devices:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                message = str(color_array[0]) + "," + str(color_array[1]) + "," + str(color_array[2]) + ","
-                sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
-
-            del ret
-            del frame
-            del data
-            del criteria
-            del flags
-            del compactness
-            del labels
-            del centers
-            del color_array
+                del ret
+                del frame
+                del data
+                del criteria
+                del flags
+                del compactness
+                del labels
+                del centers
+                del color_array
+            except:
+                print("Error processing capture")
 
 
 if __name__ == '__main__':
