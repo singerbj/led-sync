@@ -9,7 +9,7 @@ import numpy as np
 import os
 
 CAPTURE_WIDTH = 1920 / 4
-CAPTURE_HEIGHT = 1920 / 4
+CAPTURE_HEIGHT = 1080 / 4
 HTTP_PORT = 3000
 WS_PORT = 1336
 UDP_PORT = 1337
@@ -115,7 +115,7 @@ def process():
             ret, frame = vid.read()
             # frame = cv2.resize(frame, (960, 540))
 
-            data = np.reshape(frame, (-1, 1))
+            data = np.reshape(frame, (-1, 3))
             data = np.float32(data)
 
             criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
