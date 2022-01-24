@@ -45,12 +45,15 @@ def get_color():
     global send_capture
 
     if request.method == 'GET':
+        print("Getting forced_color")
         return json.dumps(forced_color)
     elif request.method == 'PUT':
         if request.json == False:
             send_capture = True
+            print("Setting capture on")
             return json.dumps(forced_color)
         else:
+            print("Getting forced_color")
             send_capture = False
             forced_color = request.json
             return json.dumps(forced_color)
@@ -103,42 +106,50 @@ def get_devices():
     get_devices()
 
 
+def process():
+    if send_capture == False:
+        if vid != None:
+            stop_capture()
+
+        cv2.destroyAllWindows()
+        socketio.emit('forced_color', json.dumps(forced_color))
+        for device in devices:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            message = str(forced_color[0]) + "," + str(forced_color[1]) + "," + str(forced_color[2]) + ","
+            print("sending message: " + message)
+            sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
+        time.sleep(0.25)
+    else:
+        if vid == None:
+            start_capture()
+
+        ret, frame = vid.read()
+
+        data = np.reshape(frame, (-1, 3))
+        data = np.float32(data)
+
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+        flags = cv2.KMEANS_RANDOM_CENTERS
+        compactness, labels, centers = cv2.kmeans(data, 1, None, criteria, 10, flags)
+
+        color_array = [int(centers[0].astype(np.int32)[2]), int(centers[0].astype(np.int32)[1]), int(centers[0].astype(np.int32)[0])]
+        socketio.emit('forced_color', json.dumps(color_array))
+        for device in devices:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            message = str(color_array[0]) + "," + str(color_array[1]) + "," + str(color_array[2]) + ","
+            print("sending message: " + message)
+            sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
+    
+    process()
+
+
 if __name__ == '__main__':
     threading.Thread(target=lambda: get_devices()).start()
     threading.Thread(target=lambda: socketio.run(api, host=str(LOCAL_IP), port=HTTP_PORT)).start()
-    while(True):
-        if send_capture == False:
-            if vid != None:
-                stop_capture()
+    
+    process()
 
-            cv2.destroyAllWindows()
-            socketio.emit('forced_color', json.dumps(forced_color))
-            for device in devices:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                message = str(forced_color[0]) + "," + str(forced_color[1]) + "," + str(forced_color[2]) + ","
-                print("sending message: " + message)
-                sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
-            time.sleep(0.25)
-        else:
-            if vid == None:
-                start_capture()
 
-            ret, frame = vid.read()
-
-            data = np.reshape(frame, (-1, 3))
-            data = np.float32(data)
-
-            criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-            flags = cv2.KMEANS_RANDOM_CENTERS
-            compactness, labels, centers = cv2.kmeans(data, 1, None, criteria, 10, flags)
-
-            color_array = [int(centers[0].astype(np.int32)[2]), int(centers[0].astype(np.int32)[1]), int(centers[0].astype(np.int32)[0])]
-            socketio.emit('forced_color', json.dumps(color_array))
-            for device in devices:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                message = str(color_array[0]) + "," + str(color_array[1]) + "," + str(color_array[2]) + ","
-                print("sending message: " + message)
-                sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
             
 
 
