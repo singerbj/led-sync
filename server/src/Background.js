@@ -25,17 +25,10 @@ const Background = ({ children }) => {
             
             socket.on("disconnect", () => {
                 setConnected(false);
-                console.log("Connection is closed...trying again in 3 seconds.");
-                setTimeout(() => {
-                    connect();
-                }, 3000);
+                console.log("Connection is closed...");
             });
         };
         connect();
-
-        return () => {
-            socket.disconnect();
-        };
     }, [])
 
     return (
