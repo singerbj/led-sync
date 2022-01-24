@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from turtle import color
 import cv2
 import socket
 from flask import Flask, request, jsonify, json, send_from_directory
@@ -7,6 +8,7 @@ import threading
 import time
 import numpy as np
 import os
+import colorsys
 
 CAPTURE_WIDTH = 480
 CAPTURE_HEIGHT = 270
@@ -109,7 +111,7 @@ def get_devices():
         
         subnet = ".".join("192.168.181.4".split(".")[0:3]) + ".*"
         os.popen("nmap -sn '" + subnet + "'")
-        
+
         for device in os.popen("arp -a | grep 'esp' | awk '{print $2}' | sed 's/^.//;s/.$//'"):
             formatted_device = device = device[:-1] 
             temp_devices.append(formatted_device)
@@ -145,6 +147,12 @@ def process():
             compactness, labels, centers = cv2.kmeans(data, 1, None, criteria, 10, flags)
 
             color_array = [int(centers[0].astype(np.int32)[2]), int(centers[0].astype(np.int32)[1]), int(centers[0].astype(np.int32)[0])]
+            
+            # increase saturation
+            hsv = colorsys.rgb_to_hsv(color_array[0], color_array[1], color_array[2])
+            hsv[1] = int(hsv[1] * 1.25)
+            color_array = colorsys.rgb_to_hsv(hsv[0], hsv[1], hsv[2])
+
             forced_color = color_array
             for device in devices:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
