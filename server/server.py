@@ -56,19 +56,36 @@ def get_color():
             print("Setting forced_color: " + str(forced_color))
             return json.dumps(forced_color)
 
+def testDevice(source):
+    cap = cv2.VideoCapture(source) 
+    if cap is None or not cap.isOpened():
+        raise Exception('Warning: unable to open video source: ' + str(source))
+
 def start_capture():
     print('starting capturing')
 
     global vid
     try:
-        vid = cv2.VideoCapture(0)
-        print("Capturing with device 0")
+        testDevice(3)
+        vid = cv2.VideoCapture(3)
+        print("Capturing with device 3")
     except:
         try:
-            vid = cv2.VideoCapture(1)
-            print("Capturing with device 1")
+            testDevice(2)
+            vid = cv2.VideoCapture(2)
+            print("Capturing with device 2")
         except:
-            print("Error getting video capture.")
+            try:
+                testDevice(1)
+                vid = cv2.VideoCapture(1)
+                print("Capturing with device 1")
+            except:
+                try:
+                    testDevice(0)
+                    vid = cv2.VideoCapture(0)
+                    print("Capturing with device 0")
+                except:
+                    print("Error getting video capture.")   
             
     vid.set(3, CAPTURE_WIDTH)
     vid.set(4, CAPTURE_HEIGHT)
