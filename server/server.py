@@ -68,6 +68,8 @@ def start_capture():
             print("Capturing with device 1")
         except:
             print("Error getting video capture.")
+            
+    vid.set(cv2.CAP_PROP_BUFFERSIZE, 1)    
 
 def stop_capture():
     print('stopping capturing')
