@@ -53,7 +53,7 @@ def get_color():
             print("Setting capture on")
             return json.dumps(forced_color)
         else:
-            print("Getting forced_color")
+            print("Setting forced_color")
             send_capture = False
             forced_color = request.json
             return json.dumps(forced_color)
@@ -146,8 +146,9 @@ def process():
 if __name__ == '__main__':
     threading.Thread(target=lambda: get_devices()).start()
     threading.Thread(target=lambda: socketio.run(api, host=str(LOCAL_IP), port=HTTP_PORT)).start()
+    threading.Thread(target=lambda: process()).start()
     
-    process()
+   
 
 
             
