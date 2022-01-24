@@ -29,7 +29,7 @@ capture_color = [0, 0, 0]
 devices = []
 
 # HTTP
-api = Flask(__name__, static_url_path='', static_folder='build',)
+api = Flask(__name__, static_url_path='', static_folder='build')
 socketio = SocketIO(api)
 
 @api.route('/', defaults=dict(filename=None))

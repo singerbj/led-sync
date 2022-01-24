@@ -55,36 +55,35 @@ const App = () => {
     return response.json();
   }
 
-  if(loading){
-    return (
-      <div id="bkrd" style={{position: 'absolute', width: '100%', height: '100%', padding: '10px'}}>
+  return (
+    <>
+      <div id="bkrd" style={{ display: !loading ? 'hidden' : '', position: 'absolute', width: '100%', height: '100%', padding: '10px'}}>
         <h3 style={{ display: 'inline', color: "#000", backgroundColor: "#FFF" }}>Loading...</h3>
       </div>
-    );
-  } else {
-    return (
-      <Background>
-          <br />
-          <br />
-          <SketchPicker
-            color={{ ...rgb, a: 100}}
-            onChangeComplete={(color) => {
-              setRgb(color.rgb);
-            }}
-          />
-          <br />
-          <br />
-          <br />
-          {/* <button onClick={() => {
-            sendForcedColor();
-          }}>Set Forced Color</button>
-          <br /> */}
-          <button onClick={() => {
-            resetColorToAuto();
-          }}>Auto Detect Based on Video Capture</button>
-      </Background>
-    );
-  }
+      <div style={{ display: loading ? 'hidden' : ''}}>
+        <Background>
+            <br />
+            <br />
+            <SketchPicker
+              color={{ ...rgb, a: 100}}
+              onChangeComplete={(color) => {
+                setRgb(color.rgb);
+              }}
+            />
+            <br />
+            <br />
+            <br />
+            {/* <button onClick={() => {
+              sendForcedColor();
+            }}>Set Forced Color</button>
+            <br /> */}
+            <button onClick={() => {
+              resetColorToAuto();
+            }}>Auto Detect Based on Video Capture</button>
+        </Background>
+      </div>
+    </>
+  );
 }
 
 export default App;
