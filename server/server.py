@@ -115,11 +115,10 @@ def get_devices():
 
 def process():
     global forced_color
+    start_capture()
+
     while True:
         if send_capture == False:
-            if vid != None:
-                stop_capture()
-
             cv2.destroyAllWindows()
             for device in devices:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -127,8 +126,6 @@ def process():
                 sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
             time.sleep(0.25)
         else:
-            if vid == None:
-                start_capture()
             ret, frame = vid.read()
             frame = cv2.resize(frame, (CAPTURE_WIDTH, CAPTURE_HEIGHT))
 
