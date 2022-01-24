@@ -3,7 +3,6 @@
 import cv2
 import socket
 from flask import Flask, request, jsonify, json, send_from_directory
-from flask_socketio import SocketIO
 import threading
 import time
 import numpy as np
@@ -30,7 +29,6 @@ devices = []
 
 # HTTP
 api = Flask(__name__, static_url_path='', static_folder='build')
-socketio = SocketIO(api)
 
 @api.route('/', defaults=dict(filename=None))
 @api.route('/<path:filename>', methods=['GET'])
@@ -56,16 +54,6 @@ def get_color():
             forced_color = request.json
             print("Setting forced_color: " + str(forced_color))
             return json.dumps(forced_color)
-
-# Websockets
-@socketio.on('connect')
-def handle_connect():
-    print('connect')
-
-@socketio.on('disconnect')
-def handle_disconnect():
-    print('disconnect')
-
 
 def start_capture():
     print('starting capturing')
@@ -106,12 +94,12 @@ def get_devices():
 
 
 def process():
+    global forced_color
     if send_capture == False:
         if vid != None:
             stop_capture()
 
         cv2.destroyAllWindows()
-        socketio.emit('forced_color', json.dumps(forced_color))
         for device in devices:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             message = str(forced_color[0]) + "," + str(forced_color[1]) + "," + str(forced_color[2]) + ","
@@ -131,7 +119,7 @@ def process():
         compactness, labels, centers = cv2.kmeans(data, 1, None, criteria, 10, flags)
 
         color_array = [int(centers[0].astype(np.int32)[2]), int(centers[0].astype(np.int32)[1]), int(centers[0].astype(np.int32)[0])]
-        socketio.emit('forced_color', json.dumps(color_array))
+        forced_color = color_array
         for device in devices:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             message = str(color_array[0]) + "," + str(color_array[1]) + "," + str(color_array[2]) + ","
@@ -142,7 +130,7 @@ def process():
 
 if __name__ == '__main__':
     threading.Thread(target=lambda: get_devices()).start()
-    threading.Thread(target=lambda: socketio.run(api, host=str(LOCAL_IP), port=HTTP_PORT)).start()
+    threading.Thread(target=lambda: api.run(host=str(LOCAL_IP), port=HTTP_PORT)).start()
     threading.Thread(target=lambda: process()).start()
     
    

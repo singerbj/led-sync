@@ -31,17 +31,25 @@ const Background = ({ children }) => {
         // connect();
         
         const getColor = (async() => {
-            try {
-                const response = await fetch('/color')
-                const json = await response.json();
-                setColorState(json)
-                setConnected(true);
-                getColor();
-            } catch (e) {
-                setConnected(false);
+            if(document.hasFocus()){
+                try {
+                    const response = await fetch('/color')
+                    const json = await response.json();
+                    setColorState(json)
+                    setConnected(true);
+                    setTimeout(() => {
+                        getColor();
+                    }, 500)
+                } catch (e) {
+                    setConnected(false);
+                    setTimeout(() => {
+                        getColor();
+                    }, 3000)
+                }
+            } else {
                 setTimeout(() => {
                     getColor();
-                }, 3000)
+                }, 500)
             }
         });
         getColor();
