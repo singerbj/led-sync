@@ -30,14 +30,6 @@ const Background = ({ children }) => {
                     connect();
                 }, 3000);
             });
-
-            socket.on("connect_error", () => {
-                setConnected(false);
-                console.log("Connection error...trying again in 3 seconds.");
-                setTimeout(() => {
-                    connect();
-                }, 3000);
-            });
         };
         connect();
 
