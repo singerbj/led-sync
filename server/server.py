@@ -128,7 +128,17 @@ def process():
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             message = str(color_array[0]) + "," + str(color_array[1]) + "," + str(color_array[2]) + ","
             sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
-    
+
+        del ret
+        del frame
+        del data
+        del criteria
+        del flags
+        del compactness
+        del labels
+        del centers
+        del color_array
+
     process()
 
 
