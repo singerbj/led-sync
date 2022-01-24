@@ -116,7 +116,6 @@ def process():
         for device in devices:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             message = str(forced_color[0]) + "," + str(forced_color[1]) + "," + str(forced_color[2]) + ","
-            print("sending message: " + message)
             sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
         time.sleep(0.25)
     else:
@@ -137,7 +136,6 @@ def process():
         for device in devices:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             message = str(color_array[0]) + "," + str(color_array[1]) + "," + str(color_array[2]) + ","
-            print("sending message: " + message)
             sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
     
     process()

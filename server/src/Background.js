@@ -11,7 +11,7 @@ const Background = ({ children }) => {
     useEffect(() => {
         let socket;
         var connect = () => {
-            socket = io();
+            socket = io({ transports: ["websocket"] });
 
             // client-side
             socket.on("connect", () => {

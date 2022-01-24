@@ -1818,11 +1818,6 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.31.tgz#72286bd33d137aa0d152d47ec7c1762563d34055"
   integrity sha512-vFHy/ezP5qI0rFgJ7aQnjDXwAMrG0KqqIH7tQG5PPv3BWBayOPIQNBjVc/P6hhdZfMx51REc6tfDNXHUio893g==
 
-"@types/node@>6":
-  version "16.10.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.10.2.tgz#5764ca9aa94470adb4e1185fe2e9f19458992b2e"
-  integrity sha512-zCclL4/rx+W5SQTzFs9wyvvyCwoK9QtBpratqz2IYJ3O8Umrn0m3nsTv0wQBk9sRGpvUe9CwPDrQFB10f1FIjQ==
-
 "@types/node@>=10.0.0":
   version "17.0.10"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.10.tgz#616f16e9d3a2a3d618136b1be244315d95bd7cab"
@@ -7681,7 +7676,7 @@ nan@^2.12.1:
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
   integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
 
-nan@^2.13.2, nan@^2.14.0:
+nan@^2.14.0:
   version "2.15.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.15.0.tgz#3f34a473ff18e15c1b5626b62903b5ad6e665fee"
   integrity sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==
@@ -7707,13 +7702,6 @@ nanomatch@^1.2.9:
     regex-not "^1.0.0"
     snapdragon "^0.8.1"
     to-regex "^3.0.1"
-
-native-node-utils@^0.2.7:
-  version "0.2.7"
-  resolved "https://registry.yarnpkg.com/native-node-utils/-/native-node-utils-0.2.7.tgz#dbf7fca4cfee579585d5e04d4564749bd56534a3"
-  integrity sha512-61v0G3uVxWlXHppSZGwZi+ZEIgGUKI8QvEkEJLb1GVePI7P8SBe+G747z+QMXSt4TxfgbVZP0DyobbRKYVIjdw==
-  dependencies:
-    nan "^2.13.2"
 
 native-url@^0.2.6:
   version "0.2.6"
@@ -8071,25 +8059,6 @@ open@^7.0.2:
   dependencies:
     is-docker "^2.0.0"
     is-wsl "^2.1.1"
-
-opencv-build@^0.1.9:
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/opencv-build/-/opencv-build-0.1.9.tgz#e10f08c4fbfd674ffd498214420883530483cbf9"
-  integrity sha512-tgT/bnJAcYROen9yaPynfK98IMl62mPSgMLmTx41911m5bczlq21xtE5r+UWLB/xEo/0hKk6tl5zHyxV/JS5Rg==
-  dependencies:
-    npmlog "^4.1.2"
-
-opencv4nodejs@^5.6.0:
-  version "5.6.0"
-  resolved "https://registry.yarnpkg.com/opencv4nodejs/-/opencv4nodejs-5.6.0.tgz#330a397d61070194a78c6fdfb793f7d8b82b5414"
-  integrity sha512-JvcT1hb2JUCdntcVABgD9Gprr+gkXBe+jhHKvrr0Ug51y087K4ybm0vHBQVzI2ei1aJxEc9tNknPL9rpyx5Xuw==
-  dependencies:
-    nan "^2.14.0"
-    native-node-utils "^0.2.7"
-    npmlog "^4.1.2"
-    opencv-build "^0.1.9"
-  optionalDependencies:
-    "@types/node" ">6"
 
 opn@^5.5.0:
   version "5.5.0"
