@@ -106,6 +106,10 @@ def get_devices():
         print("getting devices...")
         global devices
         temp_devices = []
+        
+        subnet = ".".join("192.168.181.4".split(".")[0:3]) + ".*"
+        os.popen("nmap -sn '" + subnet + "'")
+        
         for device in os.popen("arp -a | grep 'esp' | awk '{print $2}' | sed 's/^.//;s/.$//'"):
             formatted_device = device = device[:-1] 
             temp_devices.append(formatted_device)
