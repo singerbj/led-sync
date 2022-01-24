@@ -8,7 +8,8 @@ import time
 import numpy as np
 import os
 
-
+CAPTURE_WIDTH = 1920 / 4
+CAPTURE_HEIGHT = 1920 / 4
 HTTP_PORT = 3000
 WS_PORT = 1336
 UDP_PORT = 1337
@@ -69,8 +70,8 @@ def start_capture():
         except:
             print("Error getting video capture.")
             
-    vid.set(3, 1920 / 4)
-    vid.set(4, 1080 / 4)
+    vid.set(3, CAPTURE_WIDTH)
+    vid.set(4, CAPTURE_HEIGHT)
 
 def stop_capture():
     print('stopping capturing')
@@ -113,7 +114,7 @@ def process():
                 start_capture()
 
             ret, frame = vid.read()
-            frame = cv2.resize(frame, (960, 540))
+            # frame = cv2.resize(frame, (960, 540))
 
             data = np.reshape(frame, (-1, 3))
             data = np.float32(data)
