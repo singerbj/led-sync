@@ -69,7 +69,8 @@ def start_capture():
         except:
             print("Error getting video capture.")
             
-    vid.set(cv2.CAP_PROP_BUFFERSIZE, 1)    
+    vid.set(3, 1920 / 4)
+    vid.set(4, 1080 / 4)
 
 def stop_capture():
     print('stopping capturing')
@@ -112,7 +113,7 @@ def process():
             start_capture()
 
         ret, frame = vid.read()
-        frame = cv2.resize(frame, (960, 540))
+        # frame = cv2.resize(frame, (960, 540))
 
         data = np.reshape(frame, (-1, 3))
         data = np.float32(data)
