@@ -152,7 +152,7 @@ def process():
             print(1, color_array)
             hsv = colorsys.rgb_to_hsv(color_array[0] / 255, color_array[1] / 255, color_array[2] / 255)
             print(2, hsv)
-            new_saturation = int(hsv[1] * 1.5)
+            new_saturation = hsv[1] * 1.5
             print(3, new_saturation)
             rgb = colorsys.hsv_to_rgb(hsv[0], new_saturation, hsv[2])
             print(4, rgb)
