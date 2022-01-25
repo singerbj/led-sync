@@ -149,13 +149,10 @@ def process():
             color_array = [int(centers[0].astype(np.int32)[2]), int(centers[0].astype(np.int32)[1]), int(centers[0].astype(np.int32)[0])]
             
             # increase saturation
-
-            print(1, color_array)
-            hsv = colorsys.rgb_to_hsv(color_array[0], color_array[1], color_array[2])
+            hsv = colorsys.rgb_to_hsv(color_array[0] / 255, color_array[1] / 255, color_array[2] / 255)
             new_saturation = int(hsv[1] * 1.5)
             rgb = colorsys.hsv_to_rgb(hsv[0], new_saturation, hsv[2])
-            color_array = [int(rgb[0]), int(rgb[1]), int(rgb[2])]
-            print(2, color_array)
+            color_array = [int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255)]
 
             forced_color = color_array
             for device in devices:
