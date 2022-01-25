@@ -149,10 +149,12 @@ def process():
             color_array = [int(centers[0].astype(np.int32)[2]), int(centers[0].astype(np.int32)[1]), int(centers[0].astype(np.int32)[0])]
             
             # increase saturation
-            print(1, color_array)
-            hsv = colorsys.rgb_to_hsv(color_array[0] / 255, color_array[1] / 255, color_array[2] / 255)
+            print(0, color_array)
+            color_array_decimal = [color_array[0] / 255, color_array[1] / 255, color_array[2] / 255]
+            print(1, color_array_decimal)
+            hsv = colorsys.rgb_to_hsv(color_array_decimal[0], color_array_decimal[1], color_array_decimal[2])
             print(2, hsv)
-            new_saturation = hsv[1] * 1.5
+            new_saturation = hsv[1] #+ 0.1
             print(3, new_saturation)
             rgb = colorsys.hsv_to_rgb(hsv[0], new_saturation, hsv[2])
             print(4, rgb)
