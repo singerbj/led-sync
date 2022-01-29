@@ -16,28 +16,37 @@ HTTP_PORT = 3000
 WS_PORT = 1336
 UDP_PORT = 1337
 DIRECTORY = "build"
+DEV = os.getenv('DEV')
 HOSTNAME = socket.gethostname()
-try:
-    LOCAL_IP = socket.gethostbyname(HOSTNAME + ".local")
-except:
-    LOCAL_IP = socket.gethostbyname(HOSTNAME)
+if DEV:
+    try:
+        LOCAL_IP = socket.gethostbyname(HOSTNAME + ".local")
+    except:
+        LOCAL_IP = socket.gethostbyname(HOSTNAME)
+else:
+    LOCAL_IP = "localhost"
+
 
 WS_CONNECTIONS = set()
 
 send_capture = False
 vid = None
 forced_color = [100, 100, 100]
+hsv = [1, 1, 1]
+lerp_modifer = 0.5
 capture_color = [0, 0, 0]
 devices = []
 
 # HTTP
 api = Flask(__name__, static_url_path='', static_folder='build')
 
+
 @api.route('/', defaults=dict(filename=None))
 @api.route('/<path:filename>', methods=['GET'])
 def index(filename):
     filename = filename or 'index.html'
     return send_from_directory('./build', filename)
+
 
 @api.route('/color', methods=['GET', 'PUT'])
 def get_color():
@@ -58,11 +67,39 @@ def get_color():
             print("Setting forced_color: " + str(forced_color))
             return json.dumps(forced_color)
 
+
+@api.route('/hsv', methods=['GET', 'PUT'])
+def get_hsv():
+    global hsv
+
+    if request.method == 'GET':
+        print("Getting hsv: " + str(hsv))
+        return json.dumps(hsv)
+    elif request.method == 'PUT':
+        hsv = request.json
+        print("Setting hsv: " + str(hsv))
+        return json.dumps(hsv)
+
+
+@api.route('/lerp', methods=['GET', 'PUT'])
+def get_lerp_modifier():
+    global lerp_modifer
+
+    if request.method == 'GET':
+        print("Getting lerp_modifer: " + str(hsv))
+        return json.dumps(lerp_modifer)
+    elif request.method == 'PUT':
+        lerp_modifer = request.json
+        print("Setting lerp_modifer: " + str(lerp_modifer))
+        return json.dumps(lerp_modifer)
+
+
 def testDevice(source):
     print("Testing with device " + str(source))
-    cap = cv2.VideoCapture(source) 
+    cap = cv2.VideoCapture(source)
     if cap is None or not cap.isOpened():
         raise Exception('Warning: unable to open video source: ' + str(source))
+
 
 def start_capture():
     print('starting capturing')
@@ -88,10 +125,11 @@ def start_capture():
                     vid = cv2.VideoCapture(0)
                     print("Capturing with device 0")
                 except:
-                    print("Error getting video capture.")   
-            
+                    print("Error getting video capture.")
+
     vid.set(3, CAPTURE_WIDTH)
     vid.set(4, CAPTURE_HEIGHT)
+
 
 def stop_capture():
     print('stopping capturing')
@@ -103,22 +141,36 @@ def stop_capture():
     except:
         print("Error closing video capture.")
 
+
 def get_devices():
     while True:
         print("getting devices...")
         global devices
         temp_devices = []
-        
-        subnet = ".".join("192.168.181.4".split(".")[0:3]) + ".*"
+
+        subnet = ".".join(LOCAL_IP.split(".")[0:3]) + ".*"
         os.popen("nmap -sn '" + subnet + "'")
 
         for device in os.popen("arp -a | grep 'esp' | awk '{print $2}' | sed 's/^.//;s/.$//'"):
-            formatted_device = device = device[:-1] 
+            formatted_device = device = device[:-1]
             temp_devices.append(formatted_device)
         devices = temp_devices
 
         print(devices)
         time.sleep(15)
+
+
+def build_message():
+    return str("{:.2f}".format(forced_color[0])) + "," + str("{:.2f}".format(forced_color[1])) + "," + str("{:.2f}".format(forced_color[2])) + "," + str(
+        "{:.2f}".format(hsv[0])) + "," + str("{:.2f}".format(hsv[1])) + "," + str("{:.2f}".format(hsv[2])) + "," + str("{:.2f}".format(lerp_modifer)) + ","
+
+
+def send_message_to_devices():
+    for device in devices:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        message = build_message()
+        sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
+
 
 def process():
     global forced_color
@@ -128,10 +180,7 @@ def process():
                 stop_capture()
 
             cv2.destroyAllWindows()
-            for device in devices:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                message = str(forced_color[0]) + "," + str(forced_color[1]) + "," + str(forced_color[2]) + ","
-                sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
+            send_message_to_devices()
             time.sleep(0.25)
         else:
             if vid == None:
@@ -142,26 +191,17 @@ def process():
             data = np.reshape(frame, (CAPTURE_WIDTH, CAPTURE_HEIGHT, 3))
             data = np.float32(data)
 
-            criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+            criteria = (cv2.TERM_CRITERIA_EPS +
+                        cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
             flags = cv2.KMEANS_RANDOM_CENTERS
-            compactness, labels, centers = cv2.kmeans(data, 1, None, criteria, 10, flags)
+            compactness, labels, centers = cv2.kmeans(
+                data, 1, None, criteria, 10, flags)
 
-            color_array = [int(centers[0].astype(np.int32)[2]), int(centers[0].astype(np.int32)[1]), int(centers[0].astype(np.int32)[0])]
-            
-            # increase saturation
-            color_array_decimal = [color_array[0] / 255, color_array[1] / 255, color_array[2] / 255]
-            hsv = colorsys.rgb_to_hsv(color_array_decimal[0], color_array_decimal[1], color_array_decimal[2])
-            new_saturation = hsv[1] * 1.5
-            if new_saturation > 1:
-                new_saturation = 1
-            rgb = colorsys.hsv_to_rgb(hsv[0], new_saturation, hsv[2])
-            color_array = [int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255)]
+            color_array = [int(centers[0].astype(np.int32)[2]), int(
+                centers[0].astype(np.int32)[1]), int(centers[0].astype(np.int32)[0])]
 
             forced_color = color_array
-            for device in devices:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                message = str(color_array[0]) + "," + str(color_array[1]) + "," + str(color_array[2]) + ","
-                sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
+            send_message_to_devices()
 
             del ret
             del frame
@@ -173,14 +213,9 @@ def process():
             del centers
             del color_array
 
+
 if __name__ == '__main__':
     threading.Thread(target=lambda: get_devices()).start()
-    threading.Thread(target=lambda: api.run(host=str(LOCAL_IP), port=HTTP_PORT)).start()
+    threading.Thread(target=lambda: api.run(
+        host=str(LOCAL_IP), port=HTTP_PORT)).start()
     threading.Thread(target=lambda: process()).start()
-    
-   
-
-
-            
-
-
