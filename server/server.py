@@ -8,7 +8,6 @@ import threading
 import time
 import numpy as np
 import os
-import colorsys
 
 CAPTURE_WIDTH = 480
 CAPTURE_HEIGHT = 270
@@ -16,11 +15,15 @@ HTTP_PORT = 3000
 WS_PORT = 1336
 UDP_PORT = 1337
 DIRECTORY = "build"
+DEV = os.getenv('DEV')
 HOSTNAME = socket.gethostname()
-try:
-    LOCAL_IP = socket.gethostbyname(HOSTNAME + ".local")
-except:
-    LOCAL_IP = socket.gethostbyname(HOSTNAME)
+if DEV:
+    LOCAL_IP = "localhost"
+else:
+    try:
+        LOCAL_IP = socket.gethostbyname(HOSTNAME + ".local")
+    except:
+        LOCAL_IP = socket.gethostbyname(HOSTNAME)
 
 
 WS_CONNECTIONS = set()
@@ -28,8 +31,8 @@ WS_CONNECTIONS = set()
 send_capture = False
 vid = None
 forced_color = [100, 100, 100]
-hsv = [1, 1, 1]
-lerp_modifer = 0.5
+hsv = [0, 0, 0]
+lerp_modifer = 1.0
 capture_color = [0, 0, 0]
 devices = []
 

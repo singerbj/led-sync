@@ -5,8 +5,8 @@ import Background from './Background';
 import Slider from 'react-input-slider';
 
 const DEFAULT_RGB_STATE = { r: 100, g: 100, b: 100 };
-const DEFAULT_HSV_MOD_STATE = { h: 0, s: 0, vs: 0 };
-const DEFAULT_LERP_SPEED = 0.9;
+const DEFAULT_HSV_MOD_STATE = { h: 0, s: 0, v: 0 };
+const DEFAULT_LERP_SPEED = 1.0;
 const SLIDER_STYLE = {
   track: {
     backgroundColor: 'grey'
@@ -21,6 +21,7 @@ const App = () => {
   const [rgb, setRgb] = useState(DEFAULT_RGB_STATE);
   const [hsvMod, setHsvMod] = useState(DEFAULT_HSV_MOD_STATE);
   const [lerpSpeed, setLerpSpeed] = useState(DEFAULT_LERP_SPEED);
+  const [rgbCount, setRgbCount] = useState(0);
   const [hsvCount, setHsvCount] = useState(0);
   const [lerpCount, setLerpCount] = useState(0);
 
@@ -34,6 +35,12 @@ const App = () => {
       setLoading(false);
     })();
   }, []);
+
+  useEffect(() => {
+    if(rgbCount > 0){
+      sendForcedColor();
+    }
+  }, [rgbCount]);
 
   useEffect(() => {
     if(hsvCount > 0){
@@ -136,7 +143,7 @@ const App = () => {
               color={{ ...rgb, a: 100}}
               onChangeComplete={(color) => {
                 setRgb(color.rgb);
-                sendForcedColor(color.rgb);
+                setRgbCount((i) => i + 1)
               }}
             />
             <br />
@@ -144,11 +151,13 @@ const App = () => {
             <br />
             <button onClick={() => {
               resetColorToAuto();
-            }}>Auto Detect Based on Video Capture</button>
+            }}>Auto Detect Color Based on Video Capture</button>
             <br /><br /><br /><br />
-            <div style={{ display: 'inline', color: "#000", backgroundColor: "#FFF" }}>H: {hsvMod.h}</div>
+            {/* <div style={{ display: 'inline', color: "#000", backgroundColor: "#FFF", padding: 5 }}>H: {hsvMod.h}</div>
+            <br />
             <button onClick={() => {
-              setHsvMod(hsvMod => ({ ...hsvMod, h: 0.0 }))
+              setHsvMod(hsvMod => ({ ...hsvMod, h: DEFAULT_HSV_MOD_STATE.h }))
+              setHsvCount((i) => i + 1)
             }}>Reset</button>
             <br /><br />
             <Slider
@@ -163,10 +172,12 @@ const App = () => {
                 setHsvCount((i) => i + 1)
               }}
             />
+            <br /><br /> */}
+            <div style={{ display: 'inline', color: "#000", backgroundColor: "#FFF", padding: 5 }}>Saturation  Modifier: {(hsvMod.s > 0 ? "+" : "") + hsvMod.s}</div>
             <br /><br />
-            <div style={{ display: 'inline', color: "#000", backgroundColor: "#FFF" }}>S: {hsvMod.s}</div>
             <button onClick={() => {
-              setHsvMod(hsvMod => ({ ...hsvMod, s: 0.0 }))
+              setHsvMod(hsvMod => ({ ...hsvMod, s: DEFAULT_HSV_MOD_STATE.s }))
+              setHsvCount((i) => i + 1)
             }}>Reset</button>
             <br /><br />
             <Slider
@@ -181,10 +192,12 @@ const App = () => {
                 setHsvCount((i) => i + 1)
               }}
             />
+            <br /><hr/><br />
+            <div style={{ display: 'inline', color: "#000", backgroundColor: "#FFF", padding: 5 }}>Value Modifier: {(hsvMod.v > 0 ? "+" : "") + hsvMod.v}</div>
             <br /><br />
-            <div style={{ display: 'inline', color: "#000", backgroundColor: "#FFF" }}>V: {hsvMod.v}</div>
             <button onClick={() => {
-              setHsvMod(hsvMod => ({ ...hsvMod, v: 0.0 }))
+              setHsvMod(hsvMod => ({ ...hsvMod, v: DEFAULT_HSV_MOD_STATE.v }))
+              setHsvCount((i) => i + 1)
             }}>Reset</button>
             <br /><br />
             <Slider
@@ -199,10 +212,12 @@ const App = () => {
                 setHsvCount((i) => i + 1)
               }}
             />
+            <br /><hr/><br />
+            <div style={{ display: 'inline', color: "#000", backgroundColor: "#FFF", padding: 5 }}>Lerp Speed: {lerpSpeed}</div>
             <br /><br />
-            <div style={{ display: 'inline', color: "#000", backgroundColor: "#FFF" }}>Lerp Speed: {lerpSpeed}</div>
             <button onClick={() => {
-              setHsvMod(hsvMod => ({ ...hsvMod, h: 0.9 }))
+              setLerpSpeed(DEFAULT_LERP_SPEED)
+              setLerpCount((i) => i + 1)
             }}>Reset</button>
             <br /><br />
             <Slider

@@ -43,15 +43,15 @@ const Background = ({ children }) => {
 
     return (
         <div id="bkrd" style={{position: 'absolute', width: '100%', height: '100%', padding: '10px', backgroundColor: "rgb(" + colorState.join(',') + ")"}}>
-            <h3 style={{ display: 'inline', color: "#000", backgroundColor: "#FFF" }}>{connected ? "Connected :)" : "Not Connected :("}</h3>
+            <h3 style={{ display: 'inline', color: "#000", backgroundColor: "#FFF", padding: 5 }}>{connected ? "Connected :)" : "Not Connected :("}</h3>
+            {children}
             {!hasFocus && 
                 <>
                     <br />
                     <br />
-                    <h5 style={{ display: 'inline', color: "#000", backgroundColor: "#FFF" }}>Focus window to recieve color updates</h5>
+                    <h5 style={{ display: 'inline', color: "#000", backgroundColor: "#FFF", padding: 5 }}>Focus window to recieve color updates</h5>
                 </>
             }
-            {children}
         </div>
     );
 }
