@@ -5,7 +5,7 @@ import Background from './Background';
 import Slider from 'react-input-slider';
 
 const DEFAULT_RGB_STATE = { r: 100, g: 100, b: 100 };
-const DEFAULT_HSV_MOD_STATE = { h: 1, s: 1, vs: 1 };
+const DEFAULT_HSV_MOD_STATE = { h: 0, s: 0, vs: 0 };
 const DEFAULT_LERP_SPEED = 0.9;
 const SLIDER_STYLE = {
   track: {
@@ -147,12 +147,15 @@ const App = () => {
             }}>Auto Detect Based on Video Capture</button>
             <br /><br /><br /><br />
             <div style={{ display: 'inline', color: "#000", backgroundColor: "#FFF" }}>H: {hsvMod.h}</div>
+            <button onClick={() => {
+              setHsvMod(hsvMod => ({ ...hsvMod, h: 0.0 }))
+            }}>Reset</button>
             <br /><br />
             <Slider
               styles={SLIDER_STYLE}
               axis="x"
-              xmax={5}
-              xmin={-5}
+              xmax={1}
+              xmin={-1}
               xstep={0.01}
               x={hsvMod.h}
               onChange={({ x }) => setHsvMod(hsvMod => ({ ...hsvMod, h: parseFloat(x.toFixed(2), 10) }))}
@@ -162,12 +165,15 @@ const App = () => {
             />
             <br /><br />
             <div style={{ display: 'inline', color: "#000", backgroundColor: "#FFF" }}>S: {hsvMod.s}</div>
+            <button onClick={() => {
+              setHsvMod(hsvMod => ({ ...hsvMod, s: 0.0 }))
+            }}>Reset</button>
             <br /><br />
             <Slider
               styles={SLIDER_STYLE}
               axis="x"
-              xmax={5}
-              xmin={-5}
+              xmax={1}
+              xmin={-1}
               xstep={0.01}
               x={hsvMod.s}
               onChange={({ x }) => setHsvMod(hsvMod => ({ ...hsvMod, s: parseFloat(x.toFixed(2), 10) }))}
@@ -177,12 +183,15 @@ const App = () => {
             />
             <br /><br />
             <div style={{ display: 'inline', color: "#000", backgroundColor: "#FFF" }}>V: {hsvMod.v}</div>
+            <button onClick={() => {
+              setHsvMod(hsvMod => ({ ...hsvMod, v: 0.0 }))
+            }}>Reset</button>
             <br /><br />
             <Slider
               styles={SLIDER_STYLE}
               axis="x"
-              xmax={5}
-              xmin={-5}
+              xmax={1}
+              xmin={-1}
               xstep={0.01}
               x={hsvMod.v}
               onChange={({ x }) => setHsvMod(hsvMod => ({ ...hsvMod, v: parseFloat(x.toFixed(2), 10) }))}
@@ -192,6 +201,9 @@ const App = () => {
             />
             <br /><br />
             <div style={{ display: 'inline', color: "#000", backgroundColor: "#FFF" }}>Lerp Speed: {lerpSpeed}</div>
+            <button onClick={() => {
+              setHsvMod(hsvMod => ({ ...hsvMod, h: 0.9 }))
+            }}>Reset</button>
             <br /><br />
             <Slider
               styles={SLIDER_STYLE}
