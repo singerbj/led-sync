@@ -136,7 +136,7 @@ const App = () => {
   return (
     <>
       <div>
-        <Background>
+        <Background hsvMod={hsvMod}>
             <br />
             <br />
             <SketchPicker

@@ -1,7 +1,8 @@
 import './App.css';
+import { rgbToHsv, hsvToRgb } from "./Convert";
 import { useEffect, useState } from 'react';
 
-const Background = ({ children }) => {
+const Background = ({ children, hsvMod }) => {
     const [connected, setConnected] = useState(false);
     const [colorState, setColorState] = useState([0, 0, 0]);
     const [hasFocus, setHasFocus] = useState(document.hasFocus());
@@ -41,9 +42,24 @@ const Background = ({ children }) => {
         setConnected(true);
     }, [])
 
+    const getModifiedColor = (colorState) => {
+        const hsv = rgbToHsv(colorState[0], colorState[1], colorState[2]);
+        if(hsvMod){
+            hsv[1] = hsv[1] + (hsv[1] * hsvMod.s);
+            hsv[2] = hsv[2] + (hsv[2] * hsvMod.v);
+        }
+
+        return hsvToRgb(hsv[0], hsv[1], hsv[2])
+    };
+
+    const modifiedColorState = getModifiedColor(colorState);
     return (
-        <div id="bkrd" style={{position: 'absolute', width: '100%', height: '100%', padding: '10px', backgroundColor: "rgb(" + colorState.join(',') + ")"}}>
+        <div id="bkrd" style={{position: 'absolute', width: '100%', height: '100%', padding: '10px', backgroundColor: "rgb(" + modifiedColorState.join(', ') + ")"}}>
             <h3 style={{ display: 'inline', color: "#000", backgroundColor: "#FFF", padding: 5 }}>{connected ? "Connected :)" : "Not Connected :("}</h3>
+            <br /><br />
+            <h5 style={{ display: 'inline', color: "#000", backgroundColor: "#FFF", padding: 5 }}>{"Color before mods: " + colorState.map((i) => i.toFixed(2)).join(', ')}</h5>
+            <br /><br />
+            <h5 style={{ display: 'inline', color: "#000", backgroundColor: "#FFF", padding: 5 }}>{"Color after mods: " + modifiedColorState.map((i) => i.toFixed(2)).join(', ')}</h5>
             {children}
             {!hasFocus && 
                 <>
