@@ -47,6 +47,19 @@ const Background = ({ children, hsvMod }) => {
         if(hsvMod){
             hsv[1] = hsv[1] + (hsv[1] * hsvMod.s);
             hsv[2] = hsv[2] + (hsv[2] * hsvMod.v);
+
+            if(hsv[1] < 0){
+                hsv[1] = 0;
+            }
+            if(hsv[1] > 1){
+                hsv[1] = 1;
+            }
+            if(hsv[2] < 0){
+                hsv[2] = 0;
+            }
+            if(hsv[2] > 1){
+                hsv[2] = 1;
+            }
         }
 
         return hsvToRgb(hsv[0], hsv[1], hsv[2])
