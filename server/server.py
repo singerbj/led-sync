@@ -16,15 +16,11 @@ HTTP_PORT = 3000
 WS_PORT = 1336
 UDP_PORT = 1337
 DIRECTORY = "build"
-DEV = os.getenv('DEV')
 HOSTNAME = socket.gethostname()
-if DEV:
-    try:
-        LOCAL_IP = socket.gethostbyname(HOSTNAME + ".local")
-    except:
-        LOCAL_IP = socket.gethostbyname(HOSTNAME)
-else:
-    LOCAL_IP = "localhost"
+try:
+    LOCAL_IP = socket.gethostbyname(HOSTNAME + ".local")
+except:
+    LOCAL_IP = socket.gethostbyname(HOSTNAME)
 
 
 WS_CONNECTIONS = set()
