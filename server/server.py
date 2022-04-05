@@ -8,6 +8,10 @@ import threading
 import time
 import numpy as np
 import os
+import traceback
+import sys
+import signal
+import subprocess
 
 CAPTURE_WIDTH = 480
 CAPTURE_HEIGHT = 270
@@ -141,22 +145,56 @@ def stop_capture():
         print("Error closing video capture.")
 
 
+def scan(ip):
+    arp_req_frame = scapy.ARP(pdst=ip)
+
+    broadcast_ether_frame = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
+
+    broadcast_ether_arp_req_frame = broadcast_ether_frame / arp_req_frame
+
+    answered_list = scapy.srp(
+        broadcast_ether_arp_req_frame, timeout=1, verbose=False)[0]
+    result = []
+    for i in range(0, len(answered_list)):
+        client_dict = {
+            "ip": answered_list[i][1].psrc, "mac": answered_list[i][1].hwsrc}
+        result.append(client_dict)
+
+    return result
+
+
 def get_devices():
-    while True:
-        print("getting devices...")
-        global devices
-        temp_devices = []
+    global devices
+    try:
+        while True:
+            print("getting devices...")
+            temp_devices = []
 
-        subnet = ".".join(LOCAL_IP.split(".")[0:3]) + ".*"
-        os.popen("nmap -sn '" + subnet + "'")
+            subnet = ".".join(LOCAL_IP.split(".")[0:3]) + ".*"
+            nmap_cmd = subprocess.Popen(
+                "nmap -sn '" + subnet + "' > /dev/null 2>&1", shell=True)
+            nmap_cmd.wait()
 
-        for device in os.popen("arp -a | grep 'esp' | awk '{print $2}' | sed 's/^.//;s/.$//'"):
-            formatted_device = device = device[:-1]
-            temp_devices.append(formatted_device)
-        devices = temp_devices
+            arp_cmd = subprocess.Popen(
+                "arp -a | grep -v 'incomplete' | grep 'esp' | awk '{print $2}' | sed 's/^.//;s/.$//'", shell=True)
+            (arp_cmd_output, err) = arp_cmd.communicate()
+            arp_cmd.wait()
 
-        print(devices)
-        time.sleep(15)
+            if arp_cmd_output != None:
+                for device in arp_cmd_output:
+                    formatted_device = device = device[:-1]
+                    temp_devices.append(formatted_device)
+                    devices = temp_devices
+            else:
+                devices = []
+
+            print('devices: ')
+            print(devices)
+            print('==================================')
+            time.sleep(15)
+    except:
+        print("Error in get_devices")
+        traceback.print_exc()
 
 
 def build_message():
@@ -172,49 +210,77 @@ def send_message_to_devices():
 
 
 def process():
-    global forced_color
-    while True:
-        if send_capture == False:
-            if vid != None:
-                stop_capture()
+    try:
+        global forced_color
+        while True:
+            if send_capture == False:
+                if vid != None:
+                    stop_capture()
 
-            cv2.destroyAllWindows()
-            send_message_to_devices()
-            time.sleep(0.25)
-        else:
-            if vid == None:
-                start_capture()
-            ret, frame = vid.read()
-            frame = cv2.resize(frame, (CAPTURE_WIDTH, CAPTURE_HEIGHT))
+                cv2.destroyAllWindows()
+                send_message_to_devices()
+                time.sleep(0.25)
+            else:
+                if vid == None:
+                    start_capture()
+                ret, frame = vid.read()
+                frame = cv2.resize(frame, (CAPTURE_WIDTH, CAPTURE_HEIGHT))
 
-            data = np.reshape(frame, (CAPTURE_WIDTH, CAPTURE_HEIGHT, 3))
-            data = np.float32(data)
+                data = np.reshape(frame, (CAPTURE_WIDTH, CAPTURE_HEIGHT, 3))
+                data = np.float32(data)
 
-            criteria = (cv2.TERM_CRITERIA_EPS +
-                        cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-            flags = cv2.KMEANS_RANDOM_CENTERS
-            compactness, labels, centers = cv2.kmeans(
-                data, 1, None, criteria, 10, flags)
+                criteria = (cv2.TERM_CRITERIA_EPS +
+                            cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+                flags = cv2.KMEANS_RANDOM_CENTERS
+                compactness, labels, centers = cv2.kmeans(
+                    data, 1, None, criteria, 10, flags)
 
-            color_array = [int(centers[0].astype(np.int32)[2]), int(
-                centers[0].astype(np.int32)[1]), int(centers[0].astype(np.int32)[0])]
+                color_array = [int(centers[0].astype(np.int32)[2]), int(
+                    centers[0].astype(np.int32)[1]), int(centers[0].astype(np.int32)[0])]
 
-            forced_color = color_array
-            send_message_to_devices()
+                forced_color = color_array
+                send_message_to_devices()
 
-            del ret
-            del frame
-            del data
-            del criteria
-            del flags
-            del compactness
-            del labels
-            del centers
-            del color_array
+                del ret
+                del frame
+                del data
+                del criteria
+                del flags
+                del compactness
+                del labels
+                del centers
+                del color_array
+    except:
+        print("Error with the process")
+        traceback.print_exc()
+
+
+def signal_handler(signal, frame):
+    print("Killing threads...")
+    get_devices_thread.kill()
+    api_thread.kill()
+    process_thread.kill()
+    time.sleep(3)
+    print("Exiting...")
+    sys.exit(0)
 
 
 if __name__ == '__main__':
-    threading.Thread(target=lambda: get_devices()).start()
-    threading.Thread(target=lambda: api.run(
-        host=str(LOCAL_IP), port=HTTP_PORT)).start()
-    threading.Thread(target=lambda: process()).start()
+    global get_devices_thread
+    global api_thread
+    global process_thread
+
+    signal.signal(signal.SIGINT, signal_handler)
+
+    get_devices_thread = threading.Thread(target=lambda: get_devices())
+    api_thread = threading.Thread(target=lambda: api.run(
+        host=str(LOCAL_IP), port=HTTP_PORT, debug=True, use_reloader=False))
+    process_thread = threading.Thread(target=lambda: process())
+
+    # get_devices_thread.daemon = True
+    api_thread.daemon = True
+    # process_thread.daemon = True
+
+    get_devices_thread.start()
+    api_thread.start()
+    process_thread.start()
