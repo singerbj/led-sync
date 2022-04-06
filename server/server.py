@@ -39,6 +39,7 @@ hsv = [0, 0, 0]
 lerp_modifer = 1.0
 capture_color = [0, 0, 0]
 devices = []
+first_device_fetch = True
 
 # HTTP
 api = Flask(__name__, static_url_path='', static_folder='build')
@@ -62,12 +63,12 @@ def get_color():
     elif request.method == 'PUT':
         if request.json == False:
             send_capture = True
-            print("Setting capture on")
+            print("Setting capture on", file=sys.stdout)
             return json.dumps(forced_color)
         else:
             send_capture = False
             forced_color = request.json
-            print("Setting forced_color: " + str(forced_color))
+            print("Setting forced_color: " + str(forced_color), file=sys.stdout)
             return json.dumps(forced_color)
 
 
@@ -76,11 +77,11 @@ def get_hsv():
     global hsv
 
     if request.method == 'GET':
-        print("Getting hsv: " + str(hsv))
+        print("Getting hsv: " + str(hsv), file=sys.stdout)
         return json.dumps(hsv)
     elif request.method == 'PUT':
         hsv = request.json
-        print("Setting hsv: " + str(hsv))
+        print("Setting hsv: " + str(hsv), file=sys.stdout)
         return json.dumps(hsv)
 
 
@@ -89,12 +90,20 @@ def get_lerp_modifier():
     global lerp_modifer
 
     if request.method == 'GET':
-        print("Getting lerp_modifer: " + str(hsv))
+        print("Getting lerp_modifer: " + str(hsv), file=sys.stdout)
         return json.dumps(lerp_modifer)
     elif request.method == 'PUT':
         lerp_modifer = request.json
-        print("Setting lerp_modifer: " + str(lerp_modifer))
+        print("Setting lerp_modifer: " + str(lerp_modifer), file=sys.stdout)
         return json.dumps(lerp_modifer)
+
+
+@api.route('/devices', methods=['GET'])
+def http_get_devices():
+    global devices
+    print("Getting devices: ", file=sys.stdout)
+    print(devices, file=sys.stdout)
+    return json.dumps(devices)
 
 
 def testDevice(source):
@@ -145,45 +154,31 @@ def stop_capture():
         print("Error closing video capture.")
 
 
-def scan(ip):
-    arp_req_frame = scapy.ARP(pdst=ip)
-
-    broadcast_ether_frame = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
-
-    broadcast_ether_arp_req_frame = broadcast_ether_frame / arp_req_frame
-
-    answered_list = scapy.srp(
-        broadcast_ether_arp_req_frame, timeout=1, verbose=False)[0]
-    result = []
-    for i in range(0, len(answered_list)):
-        client_dict = {
-            "ip": answered_list[i][1].psrc, "mac": answered_list[i][1].hwsrc}
-        result.append(client_dict)
-
-    return result
-
-
 def get_devices():
     global devices
+    global first_device_fetch
     try:
         while True:
             print("getting devices...")
             temp_devices = []
 
-            subnet = ".".join(LOCAL_IP.split(".")[0:3]) + ".*"
-            nmap_cmd = subprocess.Popen(
-                "nmap -sn '" + subnet + "' > /dev/null 2>&1", shell=True)
-            nmap_cmd.wait()
+            if first_device_fetch == False:
+                subnet = ".".join(LOCAL_IP.split(".")[0:3]) + ".*"
+                nmap_cmd = subprocess.Popen(
+                    "nmap -sn '" + subnet + "' > /dev/null 2>&1", shell=True)
+                nmap_cmd.wait()
+            else:
+                first_device_fetch = False
 
             arp_cmd = subprocess.Popen(
-                "arp -a | grep -v 'incomplete' | grep 'esp' | awk '{print $2}' | sed 's/^.//;s/.$//'", shell=True)
-            (arp_cmd_output, err) = arp_cmd.communicate()
+                "arp -a | grep -v 'incomplete' | grep 'esp' | awk '{print $2}' | sed 's/^.//;s/.$//'", stdout=subprocess.PIPE, shell=True)
+
+            arp_cmd_output = arp_cmd.communicate()[0]
             arp_cmd.wait()
 
             if arp_cmd_output != None:
-                for device in arp_cmd_output:
-                    formatted_device = device = device[:-1]
-                    temp_devices.append(formatted_device)
+                for device in arp_cmd_output.split(b"\n"):
+                    temp_devices.append(device.decode("utf-8"))
                     devices = temp_devices
             else:
                 devices = []
@@ -191,7 +186,7 @@ def get_devices():
             print('devices: ')
             print(devices)
             print('==================================')
-            time.sleep(15)
+            # time.sleep(15)
     except:
         print("Error in get_devices")
         traceback.print_exc()
