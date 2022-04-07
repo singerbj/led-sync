@@ -1,6 +1,6 @@
 #include <Adafruit_NeoPixel.h>
 #include <WiFi.h>
-#include <WebServer.h>
+//#include <WebServer.h>
 #include <WiFiUdp.h>
 
 #define PIN 15
@@ -31,7 +31,7 @@ const int NUM_PIXELS = 300;
 const float TOO_LONG = 10000;
 const float BLINK_WAIT = 1000;
 
-WebServer server(80);
+//WebServer server(80);
 
 WiFiUDP udp;
 rgb lastRgb;
@@ -66,11 +66,11 @@ void setup()
     Serial.println(WiFi.localIP());
     delay(100);
 
-    server.on("/", handle_OnConnect);
-    server.onNotFound(handle_NotFound);
-
-    server.begin();
-    Serial.println("HTTP server started");
+//    server.on("/", handle_OnConnect);
+//    server.onNotFound(handle_NotFound);
+//
+//    server.begin();
+//    Serial.println("HTTP server started");
 
     udp.begin(1337);
     Serial.println("Listening on UDP port 1337");
@@ -82,7 +82,7 @@ void setup()
 void loop()
 {
     char buffer[50] = "";
-    server.handleClient();
+//    server.handleClient();
 
     // read udp
     udp.parsePacket();
@@ -184,40 +184,40 @@ void set_color(rgb newRgb, hsv hsvMod, float lerpSpeed)
     pixels.show();
 }
 
-void handle_OnConnect()
-{
-    Serial.println("Responding to HTTP request");
-    server.send(200, "text/html", SendHTML());
-}
-
-void handle_NotFound()
-{
-    server.send(404, "text/plain", "Not found");
-}
-
-String SendHTML()
-{
-    String ptr = "<!DOCTYPE html> <html>\n";
-    ptr += "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
-    ptr += "<title>LED Control</title>\n";
-    ptr += "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n";
-    ptr += "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n";
-    ptr += ".button {display: block;width: 80px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n";
-    ptr += ".button-on {background-color: #3498db;}\n";
-    ptr += ".button-on:active {background-color: #2980b9;}\n";
-    ptr += ".button-off {background-color: #34495e;}\n";
-    ptr += ".button-off:active {background-color: #2c3e50;}\n";
-    ptr += "p {font-size: 14px;color: #888;margin-bottom: 10px;}\n";
-    ptr += "</style>\n";
-    ptr += "</head>\n";
-    ptr += "<body>\n";
-    ptr += "<h1>led-sync</h1>\n";
-    ptr += "<h3>:)</h3>\n";
-
-    ptr += "</body>\n";
-    ptr += "</html>\n";
-    return ptr;
-}
+//void handle_OnConnect()
+//{
+//    Serial.println("Responding to HTTP request");
+//    server.send(200, "text/html", SendHTML());
+//}
+//
+//void handle_NotFound()
+//{
+//    server.send(404, "text/plain", "Not found");
+//}
+//
+//String SendHTML()
+//{
+//    String ptr = "<!DOCTYPE html> <html>\n";
+//    ptr += "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
+//    ptr += "<title>LED Control</title>\n";
+//    ptr += "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n";
+//    ptr += "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n";
+//    ptr += ".button {display: block;width: 80px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n";
+//    ptr += ".button-on {background-color: #3498db;}\n";
+//    ptr += ".button-on:active {background-color: #2980b9;}\n";
+//    ptr += ".button-off {background-color: #34495e;}\n";
+//    ptr += ".button-off:active {background-color: #2c3e50;}\n";
+//    ptr += "p {font-size: 14px;color: #888;margin-bottom: 10px;}\n";
+//    ptr += "</style>\n";
+//    ptr += "</head>\n";
+//    ptr += "<body>\n";
+//    ptr += "<h1>led-sync</h1>\n";
+//    ptr += "<h3>:)</h3>\n";
+//
+//    ptr += "</body>\n";
+//    ptr += "</html>\n";
+//    return ptr;
+//}
 
 hsv rgb2hsv(rgb in)
 {

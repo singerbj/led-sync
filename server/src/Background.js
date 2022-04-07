@@ -156,6 +156,7 @@ const Background = ({ children, hsvMod }) => {
         <pre>
           {devices.map((d) => (
             <h6
+              key={d}
               style={{
                 display: "inline",
                 color: "#000",
