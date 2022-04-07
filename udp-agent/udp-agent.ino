@@ -4,6 +4,7 @@
 #include <WiFiUdp.h>
 
 #define PIN 15
+#define LED_BUILTIN 2
 
 typedef struct
 {
@@ -27,6 +28,8 @@ const char *ssid = "THE LAIR";      // Enter SSID here
 const char *password = "binaslair"; //Enter Password here
 
 const int NUM_PIXELS = 300;
+const float TOO_LONG = 10000;
+const float BLINK_WAIT = 1000;
 
 WebServer server(80);
 
@@ -37,11 +40,16 @@ rgb newRgb;
 hsv hsvMod;
 float lerpSpeed;
 
+float lastUpdate = 0;
+float lastUpdateLedChange = 0;
+float lastUpdateLedOn = false;
+
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 void setup()
 {
     Serial.begin(115200);
+    pinMode(LED_BUILTIN, OUTPUT);
 
     WiFi.mode(WIFI_STA);        /* Configure ESP32 in STA Mode */
     WiFi.begin(ssid, password); /* Connect to Wi-Fi based on the above SSID and Password */
@@ -80,6 +88,7 @@ void loop()
     udp.parsePacket();
     if (udp.read(buffer, 50) > 0)
     {
+        lastUpdate = millis();
         char messageCharArray[50];
         strcpy(messageCharArray, buffer);
 
@@ -101,7 +110,19 @@ void loop()
         hsvMod.s = incomingData[4];
         hsvMod.v = incomingData[5];
 
-        lerpSpeed = incomingData[6];
+        lerpSpeed = incomingData[6];       
+        
+    }
+
+    if(millis() - lastUpdate > TOO_LONG){
+        if(millis() - lastUpdateLedChange > BLINK_WAIT){
+            digitalWrite(LED_BUILTIN, HIGH);
+            lastUpdateLedOn = true;
+            lastUpdateLedChange = millis() + BLINK_WAIT;
+        } else {
+            digitalWrite(LED_BUILTIN, LOW);
+            lastUpdateLedOn = false;
+        }
     }
 
     set_color(newRgb, hsvMod, lerpSpeed);
