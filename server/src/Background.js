@@ -98,7 +98,7 @@ const Background = ({ children, hsvMod }) => {
       style={{
         position: "absolute",
         width: "100%",
-        height: "100%",
+        height: "150%",
         padding: "10px",
         backgroundColor: "rgb(" + modifiedColorState.join(", ") + ")",
       }}
