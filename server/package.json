@@ -29,7 +29,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy": "ssh pi@192.168.181.236 '/bin/bash -i -c \"source ~/.profile && cd led-sync/server && git pull && yarn restart\"'",
-    "restart": "forever stop \"led-sync-server\"; killall python3; yarn && yarn build && forever start -a --uid \"led-sync-server\" index.js;"
+    "restart": "killall python3; yarn && yarn build && forever start -a --uid \"led-sync-server\" index.js;"
   },
   "proxy": "http://localhost:3000",
   "eslintConfig": {

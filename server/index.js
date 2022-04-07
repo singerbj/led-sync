@@ -1,5 +1,5 @@
 const spawn = require("child_process").spawn;
-const pythonProcess = spawn("python3", ["server.py"]);
+const pythonProcess = spawn("python3", ["server.py"], { detached: false });
 
 pythonProcess.stdout.on("data", (buffer) => {
   console.log(buffer.toString("utf8"));
