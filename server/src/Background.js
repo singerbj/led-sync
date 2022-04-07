@@ -152,17 +152,21 @@ const Background = ({ children, hsvMod }) => {
         >
           {" "}
           Devices:{" "}
-          <pre
-            style={{
-              display: "inline",
-              color: "#000",
-              backgroundColor: "#FFF",
-              padding: 5,
-            }}
-          >
-            {JSON.stringify(devices)}
-          </pre>
         </h5>
+        <pre>
+          {devices.map((d) => (
+            <h6
+              style={{
+                display: "inline",
+                color: "#000",
+                backgroundColor: "#FFF",
+                padding: 5,
+              }}
+            >
+              {d}
+            </h6>
+          ))}
+        </pre>
       </>
       {!hasFocus && (
         <>

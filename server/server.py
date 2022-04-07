@@ -178,8 +178,10 @@ def get_devices():
 
             if arp_cmd_output != None:
                 for device in arp_cmd_output.split(b"\n"):
-                    temp_devices.append(device.decode("utf-8"))
-                    devices = temp_devices
+                    device_string = device.decode("utf-8")
+                    if len(device_string) > 0:
+                        temp_devices.append(device_string)
+                        devices = temp_devices
             else:
                 devices = []
 
