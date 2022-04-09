@@ -28,7 +28,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "ssh pi@192.168.181.236 '/bin/bash -i -c \"source ~/.profile && cd led-sync/server && git pull && yarn restart\"'",
+    "deploy": "ssh pi@192.168.181.236 '/bin/bash -i -c \"source ~/.profile && cd led-sync/server && git pull && yarn build && yarn restart\"'",
     "restart": "./scripts/create_service.sh"
   },
   "proxy": "http://localhost:3000",
