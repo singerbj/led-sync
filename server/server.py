@@ -64,12 +64,13 @@ def get_color():
     elif request.method == 'PUT':
         if request.json == False:
             send_capture = True
-            print("Setting capture on", file=sys.stdout)
+            print("Setting capture on", file=sys.stdout, flush=True)
             return json.dumps(forced_color)
         else:
             send_capture = False
             forced_color = request.json
-            print("Setting forced_color: " + str(forced_color), file=sys.stdout)
+            print("Setting forced_color: " + str(forced_color),
+                  file=sys.stdout, flush=True)
             return json.dumps(forced_color)
 
 
@@ -78,11 +79,11 @@ def get_hsv():
     global hsv
 
     if request.method == 'GET':
-        print("Getting hsv: " + str(hsv), file=sys.stdout)
+        print("Getting hsv: " + str(hsv), file=sys.stdout, flush=True)
         return json.dumps(hsv)
     elif request.method == 'PUT':
         hsv = request.json
-        print("Setting hsv: " + str(hsv), file=sys.stdout)
+        print("Setting hsv: " + str(hsv), file=sys.stdout, flush=True)
         return json.dumps(hsv)
 
 
@@ -91,68 +92,69 @@ def get_lerp_modifier():
     global lerp_modifer
 
     if request.method == 'GET':
-        print("Getting lerp_modifer: " + str(hsv), file=sys.stdout)
+        print("Getting lerp_modifer: " + str(hsv), file=sys.stdout, flush=True)
         return json.dumps(lerp_modifer)
     elif request.method == 'PUT':
         lerp_modifer = request.json
-        print("Setting lerp_modifer: " + str(lerp_modifer), file=sys.stdout)
+        print("Setting lerp_modifer: " + str(lerp_modifer),
+              file=sys.stdout, flush=True)
         return json.dumps(lerp_modifer)
 
 
 @api.route('/devices', methods=['GET'])
 def http_get_devices():
     global devices
-    print("Getting devices: ", file=sys.stdout)
-    print(devices, file=sys.stdout)
+    print("Getting devices: ", file=sys.stdout, flush=True)
+    print(devices, file=sys.stdout, flush=True)
     return json.dumps(devices)
 
 
 def testDevice(source):
-    print("Testing with device " + str(source))
+    print("Testing with device " + str(source), flush=True)
     cap = cv2.VideoCapture(source)
     if cap is None or not cap.isOpened():
         raise Exception('Warning: unable to open video source: ' + str(source))
 
 
 def start_capture():
-    print('starting capturing')
+    print('starting capturing', flush=True)
 
     global vid
     try:
         testDevice(3)
         vid = cv2.VideoCapture(3)
-        print("Capturing with device 3")
+        print("Capturing with device 3", flush=True)
     except:
         try:
             testDevice(2)
             vid = cv2.VideoCapture(2)
-            print("Capturing with device 2")
+            print("Capturing with device 2", flush=True)
         except:
             try:
                 testDevice(1)
                 vid = cv2.VideoCapture(1)
-                print("Capturing with device 1")
+                print("Capturing with device 1", flush=True)
             except:
                 try:
                     testDevice(0)
                     vid = cv2.VideoCapture(0)
-                    print("Capturing with device 0")
+                    print("Capturing with device 0", flush=True)
                 except:
-                    print("Error getting video capture.")
+                    print("Error getting video capture.", flush=True)
 
     vid.set(3, CAPTURE_WIDTH)
     vid.set(4, CAPTURE_HEIGHT)
 
 
 def stop_capture():
-    print('stopping capturing')
+    print('stopping capturing', flush=True)
 
     try:
         global vid
         vid.release()
         vid = None
     except:
-        print("Error closing video capture.")
+        print("Error closing video capture.", flush=True)
 
 
 def get_devices():
@@ -160,7 +162,7 @@ def get_devices():
     global first_device_fetch
     try:
         while True:
-            print("getting devices...")
+            print("getting devices...", flush=True)
             temp_devices = []
 
             if first_device_fetch == False:
@@ -186,12 +188,14 @@ def get_devices():
             else:
                 devices = []
 
-            print(str(datetime.now) + ' -> devices: ')
-            print(devices)
-            print(str(datetime.now) + ' -> ==================================')
+            print(str(datetime.now().strftime("%m/%d/%Y, %H:%M:%S")) +
+                  ' -> devices: ', flush=True)
+            print(devices, flush=True)
+            print(str(datetime.now().strftime("%m/%d/%Y, %H:%M:%S")) +
+                  ' -> ==================================', flush=True)
             # time.sleep(15)
     except:
-        print("Error in get_devices")
+        print("Error in get_devices", flush=True)
         traceback.print_exc()
 
 
@@ -249,17 +253,21 @@ def process():
                 del centers
                 del color_array
     except:
-        print("Error with the process")
+        print("Error with the process", flush=True)
         traceback.print_exc()
 
 
 def signal_handler(signal, frame):
-    print("Killing threads...")
+    global get_devices_thread
+    global api_thread
+    global process_thread
+
+    print("Killing threads...", flush=True)
     get_devices_thread.kill()
     api_thread.kill()
     process_thread.kill()
     time.sleep(3)
-    print("Exiting...")
+    print("Exiting...", flush=True)
     sys.exit(0)
 
 
