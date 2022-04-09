@@ -1,0 +1,14 @@
+[Unit]
+Description=led-sync service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=pi
+ExecStart=/usr/bin/env python3 /home/pi/led-sync/server/server.py
+
+[Install]
+WantedBy=multi-user.target
