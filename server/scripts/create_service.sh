@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-systemctl disable ledsync
-systemctl stop ledsync
+sudo systemctl disable ledsync
+sudo systemctl stop ledsync
 
 sudo cp ledsync.service /etc/systemd/system/
 
-systemctl start ledsync
-systemctl enable ledsync
+sudo systemctl start ledsync
+sudo systemctl enable ledsync
