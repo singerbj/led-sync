@@ -28,8 +28,9 @@ const char *ssid = "THE LAIR";      // Enter SSID here
 const char *password = "binaslair"; //Enter Password here
 
 const int NUM_PIXELS = 300;
-const float TOO_LONG = 10000;
-const float BLINK_WAIT = 1000;
+const int TOO_LONG = 10000;
+const int BLINK_WAIT = 1000;
+const int WIFI_RECONNECT_INTERVAL = 30000;
 
 //WebServer server(80);
 
@@ -43,6 +44,7 @@ float lerpSpeed;
 float lastUpdate = 0;
 float lastUpdateLedChange = 0;
 float lastUpdateLedOn = false;
+float lastWifiUpdate = 0;
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -51,13 +53,9 @@ void setup()
     Serial.begin(115200);
     pinMode(LED_BUILTIN, OUTPUT);
 
-    WiFi.mode(WIFI_STA);        /* Configure ESP32 in STA Mode */
-    WiFi.begin(ssid, password); /* Connect to Wi-Fi based on the above SSID and Password */
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        Serial.print("*");
-        delay(100);
-    }
+    lastWifiUpdate = millis();
+    wifiConnect();
+    
     Serial.print("\n");
     Serial.print("Connected to Wi-Fi: ");
     Serial.println(WiFi.SSID());
@@ -114,6 +112,12 @@ void loop()
         
     }
 
+    if(millis() - lastWifiUpdate > WIFI_RECONNECT_INTERVAL){
+        lastWifiUpdate = millis();
+        
+        wifiConnect();
+    }
+
     if(millis() - lastUpdate > TOO_LONG){
         if(millis() - lastUpdateLedChange > BLINK_WAIT){
             digitalWrite(LED_BUILTIN, HIGH);
@@ -126,6 +130,16 @@ void loop()
     }
 
     set_color(newRgb, hsvMod, lerpSpeed);
+}
+
+void wifiConnect() {
+  WiFi.mode(WIFI_STA);        /* Configure ESP32 in STA Mode */
+  WiFi.begin(ssid, password); /* Connect to Wi-Fi based on the above SSID and Password */
+  while (WiFi.status() != WL_CONNECTED)
+  {
+      Serial.print("*");
+      delay(100);
+  }
 }
 
 float lerp(float a, float b, float t)
