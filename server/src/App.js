@@ -25,6 +25,8 @@ const App = () => {
   const [hsvCount, setHsvCount] = useState(0);
   const [lerpCount, setLerpCount] = useState(0);
 
+  const [messages, setMessages] = useState([]);
+
   useEffect(() => {
     (async () => {
       const rbgArray = await getForcedColor();
@@ -134,6 +136,7 @@ const App = () => {
 
   return (
     <>
+      <h1>{messages}</h1>
       <div>
         <Background hsvMod={hsvMod}>
           <br />

@@ -13,6 +13,8 @@ import sys
 import signal
 import subprocess
 from datetime import datetime
+from flask_socketio import SocketIO, emit
+# from flask_cors import CORS, cross_origin
 
 CAPTURE_WIDTH = 480
 CAPTURE_HEIGHT = 270
@@ -44,16 +46,20 @@ first_device_fetch = True
 
 # HTTP
 api = Flask(__name__, static_url_path='', static_folder='build')
+# cors = CORS(api)
+socketio = SocketIO(api)
 
 
 @api.route('/', defaults=dict(filename=None))
 @api.route('/<path:filename>', methods=['GET'])
+# @cross_origin()
 def index(filename):
     filename = filename or 'index.html'
     return send_from_directory('./build', filename)
 
 
 @api.route('/color', methods=['GET', 'PUT'])
+# @cross_origin()
 def get_color():
     global forced_color
     global capture_color
@@ -75,6 +81,7 @@ def get_color():
 
 
 @api.route('/hsv', methods=['GET', 'PUT'])
+# @cross_origin()
 def get_hsv():
     global hsv
 
@@ -88,6 +95,7 @@ def get_hsv():
 
 
 @api.route('/lerp', methods=['GET', 'PUT'])
+# @cross_origin()
 def get_lerp_modifier():
     global lerp_modifer
 
@@ -102,11 +110,23 @@ def get_lerp_modifier():
 
 
 @api.route('/devices', methods=['GET'])
+# @cross_origin()
 def http_get_devices():
     global devices
     print("Getting devices: ", file=sys.stdout, flush=True)
     print(devices, file=sys.stdout, flush=True)
     return json.dumps(devices)
+
+
+@socketio.on('connect')
+def test_connect(auth):
+    print("==========> New websocket connection")
+
+
+@socketio.on('json')
+# @cross_origin()
+def handle_json(json):
+    print('received json: ' + str(json))
 
 
 def testDevice(source):
@@ -205,9 +225,14 @@ def build_message():
 
 
 def send_message_to_devices():
+    message = build_message()
+    # with api.test_request_context():
+    #     emit("data", message)c
+
+    socketio.emit('data', message)
+
     for device in devices:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        message = build_message()
         sock.sendto(bytes(message, "utf-8"), (device, UDP_PORT))
 
 
@@ -279,8 +304,8 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
 
     get_devices_thread = threading.Thread(target=lambda: get_devices())
-    api_thread = threading.Thread(target=lambda: api.run(
-        host=str(LOCAL_IP), port=HTTP_PORT, debug=True, use_reloader=False))
+    api_thread = threading.Thread(target=lambda: socketio.run(
+        api, host=str(LOCAL_IP), port=HTTP_PORT, debug=True, use_reloader=False))
     process_thread = threading.Thread(target=lambda: process())
 
     # get_devices_thread.daemon = True

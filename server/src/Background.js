@@ -2,6 +2,8 @@ import "./App.css";
 import { rgbToHsv, hsvToRgb } from "./Convert";
 import { useEffect, useState } from "react";
 
+import { initiateSocket, disconnectSocket, onData } from "./SocketManager";
+
 const Background = ({ children, hsvMod }) => {
   const [connected, setConnected] = useState(false);
   const [colorState, setColorState] = useState([0, 0, 0]);
@@ -18,30 +20,21 @@ const Background = ({ children, hsvMod }) => {
   }, []);
 
   useEffect(() => {
-    const getColor = async () => {
-      if (document.hasFocus()) {
-        try {
-          const response = await fetch("/color");
-          const json = await response.json();
-          setColorState(json);
-          setConnected(true);
-          setTimeout(() => {
-            getColor();
-          }, 500);
-        } catch (e) {
-          setConnected(false);
-          setTimeout(() => {
-            getColor();
-          }, 3000);
-        }
-      } else {
-        setTimeout(() => {
-          getColor();
-        }, 500);
-      }
+    initiateSocket((connected) => {
+      setConnected(connected);
+    });
+    onData((err, data) => {
+      if (err) return;
+      const dataArray = data.split(",");
+      setColorState([
+        parseFloat(dataArray[0], 10),
+        parseFloat(dataArray[1], 10),
+        parseFloat(dataArray[2], 10),
+      ]);
+    });
+    return () => {
+      disconnectSocket();
     };
-    getColor();
-    setConnected(true);
   }, []);
 
   useEffect(() => {

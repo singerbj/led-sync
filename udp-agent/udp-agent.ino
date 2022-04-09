@@ -112,13 +112,13 @@ void loop()
         
     }
 
-    if(millis() - lastWifiUpdate > WIFI_RECONNECT_INTERVAL){
-        lastWifiUpdate = millis();
-        
-        wifiConnect();
-    }
-
     if(millis() - lastUpdate > TOO_LONG){
+        if(millis() - lastWifiUpdate > WIFI_RECONNECT_INTERVAL){
+            Serial.println("Reconnecting to WiFi");
+            lastWifiUpdate = millis();
+            wifiConnect();
+        }
+        
         if(millis() - lastUpdateLedChange > BLINK_WAIT){
             digitalWrite(LED_BUILTIN, HIGH);
             lastUpdateLedOn = true;
