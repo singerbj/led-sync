@@ -12,6 +12,7 @@ import traceback
 import sys
 import signal
 import subprocess
+from datetime import datetime
 
 CAPTURE_WIDTH = 480
 CAPTURE_HEIGHT = 270
@@ -185,9 +186,9 @@ def get_devices():
             else:
                 devices = []
 
-            print('devices: ')
+            print(str(datetime.now) + ' -> devices: ')
             print(devices)
-            print('==================================')
+            print(str(datetime.now) + ' -> ==================================')
             # time.sleep(15)
     except:
         print("Error in get_devices")
