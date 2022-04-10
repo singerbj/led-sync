@@ -319,3 +319,7 @@ if __name__ == '__main__':
     get_devices_thread.start()
     api_thread.start()
     process_thread.start()
+
+    while True:
+        socketio.emit('data', "hellow")
+        time.sleep(2)
