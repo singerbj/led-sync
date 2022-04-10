@@ -219,7 +219,7 @@ def get_devices():
             print(devices, flush=True)
             print(str(datetime.now().strftime("%m/%d/%Y, %H:%M:%S")) +
                   ' -> ==================================', flush=True)
-            # time.sleep(15)
+            time.sleep(15)
     except:
         print("Error in get_devices", flush=True)
         traceback.print_exc()

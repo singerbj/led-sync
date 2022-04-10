@@ -24,7 +24,7 @@
   "scripts": {
     "start": "PORT=3001 react-scripts start",
     "start-server": "DEV=true python3 server.py",
-    "start-all": "PORT=3001 run-p start start-server",
+    "start-all": "run-p build start-server",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
