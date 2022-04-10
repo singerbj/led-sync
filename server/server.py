@@ -32,6 +32,7 @@ else:
     except:
         LOCAL_IP = socket.gethostbyname(HOSTNAME)
 
+print("HOSTNAME -> " + HOSTNAME)
 print("LOCAL_IP -> " + LOCAL_IP)
 
 
