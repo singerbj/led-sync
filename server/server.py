@@ -311,7 +311,7 @@ if __name__ == '__main__':
 
     get_devices_thread = threading.Thread(target=lambda: get_devices())
     api_thread = threading.Thread(target=lambda: socketio.run(
-        api, host=str(FLASK_ADDRESS), port=HTTP_PORT, debug=True, use_reloader=False))
+        api, host="0.0.0.0", port=HTTP_PORT, debug=True, use_reloader=False))
     process_thread = threading.Thread(target=lambda: process())
 
     # get_devices_thread.daemon = True
