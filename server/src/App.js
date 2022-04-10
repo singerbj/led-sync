@@ -136,7 +136,6 @@ const App = () => {
 
   return (
     <>
-      <h1>{messages}</h1>
       <div>
         <Background hsvMod={hsvMod}>
           <br />
