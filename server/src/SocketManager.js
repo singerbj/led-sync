@@ -7,6 +7,8 @@ export const initiateSocket = (cb) => {
   socket = io("http://" + window.location.hostname + ":3000");
   console.log(`Connecting socket...`);
   connectionChangeCallback(true);
+  socket.on("connect_error", (err) => console.log(err));
+  socket.on("connect_failed", (err) => console.log(err));
 };
 export const disconnectSocket = () => {
   console.log("Disconnecting socket...");

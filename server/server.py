@@ -129,6 +129,12 @@ def test_connect(auth):
     print("==========> New websocket connection")
 
 
+@socketio.on_error_default
+def default_error_handler(e):
+    print(request.event["message"])  # "my error event"
+    print(request.event["args"])    # (data,)
+
+
 def testDevice(source):
     print("Testing with device " + str(source), flush=True)
     cap = cv2.VideoCapture(source)
@@ -227,7 +233,7 @@ def build_message():
 def send_message_to_devices():
     message = build_message()
 
-    socketio.send('data', message)
+    socketio.emit('data', message)
 
     for device in devices:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
