@@ -129,12 +129,6 @@ def test_connect(auth):
     print("==========> New websocket connection")
 
 
-@socketio.on('json')
-# @cross_origin()
-def handle_json(json):
-    print('received json: ' + str(json))
-
-
 def testDevice(source):
     print("Testing with device " + str(source), flush=True)
     cap = cv2.VideoCapture(source)
@@ -232,10 +226,8 @@ def build_message():
 
 def send_message_to_devices():
     message = build_message()
-    # with api.test_request_context():
-    #     emit("data", message)c
 
-    socketio.emit('data', message)
+    socketio.send('data', message)
 
     for device in devices:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
