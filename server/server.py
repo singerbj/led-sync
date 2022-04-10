@@ -26,7 +26,9 @@ DEV = os.getenv('DEV')
 HOSTNAME = socket.gethostname()
 if DEV:
     LOCAL_IP = "localhost"
+    FLASK_ADDRESS = LOCAL_IP
 else:
+    FLASK_ADDRESS = HOSTNAME + ".local"
     try:
         LOCAL_IP = socket.gethostbyname(HOSTNAME + ".local")
     except:
@@ -34,6 +36,7 @@ else:
 
 print("HOSTNAME -> " + HOSTNAME)
 print("LOCAL_IP -> " + LOCAL_IP)
+print("FLASK_ADDRESS -> " + FLASK_ADDRESS)
 
 
 WS_CONNECTIONS = set()
@@ -308,7 +311,7 @@ if __name__ == '__main__':
 
     get_devices_thread = threading.Thread(target=lambda: get_devices())
     api_thread = threading.Thread(target=lambda: socketio.run(
-        api, host=str(LOCAL_IP), port=HTTP_PORT, debug=True, use_reloader=False))
+        api, host=str(FLASK_ADDRESS), port=HTTP_PORT, debug=True, use_reloader=False))
     process_thread = threading.Thread(target=lambda: process())
 
     # get_devices_thread.daemon = True
