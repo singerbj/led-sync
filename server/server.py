@@ -32,6 +32,8 @@ else:
     except:
         LOCAL_IP = socket.gethostbyname(HOSTNAME)
 
+print("LOCAL_IP -> " + LOCAL_IP)
+
 
 WS_CONNECTIONS = set()
 
