@@ -126,13 +126,13 @@ def http_get_devices():
 
 @socketio.on('connect')
 def test_connect(auth):
-    print("==========> New websocket connection")
+    print("==========> New websocket connection", flush=True)
 
 
 @socketio.on_error_default
 def default_error_handler(e):
-    print(request.event["message"])  # "my error event"
-    print(request.event["args"])    # (data,)
+    print(request.event["message"], flush=True)  # "my error event"
+    print(request.event["args"], flush=True)    # (data,)
 
 
 def testDevice(source):
