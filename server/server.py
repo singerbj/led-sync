@@ -13,7 +13,7 @@ import sys
 import signal
 import subprocess
 from datetime import datetime
-from flask_socketio import SocketIO, emit
+# from flask_socketio import SocketIO, emit
 # from flask_cors import CORS, cross_origin
 
 CAPTURE_WIDTH = 480
@@ -53,7 +53,7 @@ first_device_fetch = True
 # HTTP
 api = Flask(__name__, static_url_path='', static_folder='build')
 # cors = CORS(api)
-socketio = SocketIO(api)
+# socketio = SocketIO(api)
 
 
 @api.route('/', defaults=dict(filename=None))
@@ -124,15 +124,15 @@ def http_get_devices():
     return json.dumps(devices)
 
 
-@socketio.on('connect')
-def test_connect(auth):
-    print("==========> New websocket connection", flush=True)
+# @socketio.on('connect')
+# def test_connect(auth):
+#     print("==========> New websocket connection", flush=True)
 
 
-@socketio.on_error_default
-def default_error_handler(e):
-    print(request.event["message"], flush=True)  # "my error event"
-    print(request.event["args"], flush=True)    # (data,)
+# @socketio.on_error_default
+# def default_error_handler(e):
+#     print(request.event["message"], flush=True)  # "my error event"
+#     print(request.event["args"], flush=True)    # (data,)
 
 
 def testDevice(source):
@@ -233,7 +233,7 @@ def build_message():
 def send_message_to_devices():
     message = build_message()
 
-    socketio.emit('data', message)
+    # socketio.emit('data', message)
 
     for device in devices:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -308,8 +308,8 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
 
     get_devices_thread = threading.Thread(target=lambda: get_devices())
-    api_thread = threading.Thread(target=lambda: socketio.run(
-        api, host="0.0.0.0", port=HTTP_PORT, debug=True, use_reloader=False))
+    api_thread = threading.Thread(target=lambda: api.run(
+        host="0.0.0.0", port=HTTP_PORT, debug=True, use_reloader=False))
     process_thread = threading.Thread(target=lambda: process())
 
     # get_devices_thread.daemon = True
@@ -319,7 +319,3 @@ if __name__ == '__main__':
     get_devices_thread.start()
     api_thread.start()
     process_thread.start()
-
-    while True:
-        socketio.emit('data', "hellow")
-        time.sleep(2)
