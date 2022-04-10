@@ -24,7 +24,6 @@ const Background = ({ children, hsvMod }) => {
     const getColor = async () => {
       if (document.hasFocus()) {
         try {
-          await fetch("/color");
           const response = await fetch("/color");
           const json = await response.json();
           setColorState(json);
